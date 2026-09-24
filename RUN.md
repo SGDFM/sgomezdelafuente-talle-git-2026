@@ -12,3 +12,5 @@ Comando:
 ```
 
 La API levanta por defecto en `http://localhost:8080`.
+
+Para detener el servidor, usar `Ctrl+C` en la terminal donde esta corriendo Maven.
