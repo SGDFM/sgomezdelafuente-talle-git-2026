@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import py.edu.uc.lp3.minecraft.Aldeano;
 import py.edu.uc.lp3.minecraft.Creeper;
 import py.edu.uc.lp3.minecraft.Entidad;
+import py.edu.uc.lp3.minecraft.Esqueleto;
 import py.edu.uc.lp3.minecraft.Jugador;
 import py.edu.uc.lp3.minecraft.Zombie;
 
@@ -94,10 +95,12 @@ public class SgomezdelafuenteController {
 			@RequestParam(defaultValue = "20") int vida,
 			@RequestParam(defaultValue = "2") int velocidad,
 			@RequestParam(defaultValue = "1") int cargaExplosion,
+			@RequestParam(defaultValue = "5") int flechas,
 			@RequestParam(defaultValue = "true") boolean comercializacion) {
 		Entidad primera = new Creeper(vida, 0, velocidad, cargaExplosion);
 		Entidad segunda = new Aldeano(vida, 0, velocidad, comercializacion);
-		return new ComportamientosRespuesta(EntidadResumen.desde(primera), EntidadResumen.desde(segunda));
+		Entidad tercera = new Esqueleto(vida, 5, velocidad, flechas);
+		return new ComportamientosRespuesta(EntidadResumen.desde(primera), EntidadResumen.desde(segunda), EntidadResumen.desde(tercera));
 	}
 
 	public record CreeperEstado(
@@ -149,6 +152,6 @@ public class SgomezdelafuenteController {
 		}
 	}
 
-	public record ComportamientosRespuesta(EntidadResumen primera, EntidadResumen segunda) {
+	public record ComportamientosRespuesta(EntidadResumen primera, EntidadResumen segunda, EntidadResumen tercera) {
 	}
 }

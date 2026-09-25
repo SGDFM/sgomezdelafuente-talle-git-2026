@@ -13,7 +13,7 @@ Comision: CYT646 F
 ## Endpoints principales
 
 - `GET /`: estado basico de la API.
-- `GET /minecraft/sgomezdelafuente/comportamientos?vida=20&velocidad=2&cargaExplosion=3&comercializacion=true`: construye dos entidades y devuelve su comportamiento usando el tipo padre `Entidad`.
+- `GET /minecraft/sgomezdelafuente/comportamientos?vida=20&velocidad=2&cargaExplosion=3&flechas=5&comercializacion=true`: construye entidades y devuelve su comportamiento usando el tipo padre `Entidad`.
 - `GET /minecraft/sgomezdelafuente/creeper`: estado del creeper.
 - `GET /minecraft/sgomezdelafuente/jugador`: estado del jugador.
 
@@ -87,6 +87,16 @@ classDiagram
         +String comportamiento()
     }
 
+    class Esqueleto {
+        -int flechas
+        +Esqueleto(int vida, int danoBase, int velocidad, int flechas)
+        +int getFlechas()
+        +void setFlechas(int flechas)
+        +void disparar(Jugador jugador)
+        +void recargar(int cantidad)
+        +String comportamiento()
+    }
+
     class Cerdo {
         -boolean montable
         +Cerdo(int vida, int danoBase, int velocidad, boolean montable)
@@ -107,8 +117,10 @@ classDiagram
     Entidad <|-- Mob
     Mob <|-- Zombie
     Mob <|-- Creeper
+    Mob <|-- Esqueleto
     Mob <|-- Cerdo
     Mob <|-- Aldeano
     Zombie <|-- ZombiePequeno
     Zombie --> Jugador : ataca
+    Esqueleto --> Jugador : dispara
 ```
