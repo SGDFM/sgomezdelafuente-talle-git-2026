@@ -2,6 +2,8 @@
 
 ## Objetivo
 
+Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/dfbdf519b86dd60384a51b330bc2a3fc711428a4
+
 Implementar una API REST Spring Boot que exponga un modelo orientado a objetos del dominio Minecraft, aplicando encapsulamiento, herencia, polimorfismo y validacion de invariantes.
 
 ## Dominio
@@ -9,6 +11,12 @@ Implementar una API REST Spring Boot que exponga un modelo orientado a objetos d
 Minecraft.
 
 La clase base es `Entidad`. Las especializaciones principales son `Jugador`, `Mob`, `Zombie`, `ZombiePequeno`, `Creeper`, `Esqueleto`, `Cerdo` y `Aldeano`.
+
+Las clases estan organizadas semanticamente siguiendo el template de LP3:
+
+- `py.edu.uc.lp3.domain.minecraft`: clases del dominio.
+- `py.edu.uc.lp3.rest.controller`: controllers REST.
+- `py.edu.uc.lp3.Application`: clase principal Spring Boot.
 
 ## Consignas cubiertas
 
@@ -18,6 +26,8 @@ La clase base es `Entidad`. Las especializaciones principales son `Jugador`, `Mo
 - Clase base abstracta `Entidad` con método abstracto `comportamiento()`.
 - Hijas independientes que implementan comportamiento propio.
 - Controller que pide comportamiento usando el tipo padre `Entidad`.
+- Constructores simples y sobrecargados en `Jugador`, `Creeper` y `Esqueleto`.
+- Sobrecarga del mensaje `Esqueleto.disparar(...)`.
 - Estado encapsulado con atributos `private`.
 - Reglas de validacion dentro de las clases.
 - README con diagrama Mermaid alineado al codigo.
@@ -29,6 +39,8 @@ La clase base es `Entidad`. Las especializaciones principales son `Jugador`, `Mo
 - El estado no puede quedar invalido desde el controller.
 - No hay asignacion directa a campos desde fuera de las clases.
 - El endpoint de comportamientos no pregunta el tipo concreto para armar el mensaje.
+- Los constructores sobrecargados dejan siempre objetos validos.
+- El metodo sobrecargado `disparar` consume flechas y valida distancia.
 
 ## Como probar
 

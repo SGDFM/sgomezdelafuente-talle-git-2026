@@ -1,16 +1,16 @@
-package py.edu.uc.lp3.minecraft.web;
+package py.edu.uc.lp3.rest.controller;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import py.edu.uc.lp3.minecraft.Aldeano;
-import py.edu.uc.lp3.minecraft.Creeper;
-import py.edu.uc.lp3.minecraft.Entidad;
-import py.edu.uc.lp3.minecraft.Esqueleto;
-import py.edu.uc.lp3.minecraft.Jugador;
-import py.edu.uc.lp3.minecraft.Zombie;
+import py.edu.uc.lp3.domain.minecraft.Aldeano;
+import py.edu.uc.lp3.domain.minecraft.Creeper;
+import py.edu.uc.lp3.domain.minecraft.Entidad;
+import py.edu.uc.lp3.domain.minecraft.Esqueleto;
+import py.edu.uc.lp3.domain.minecraft.Jugador;
+import py.edu.uc.lp3.domain.minecraft.Zombie;
 
 @RestController
 @RequestMapping("/minecraft/sgomezdelafuente")

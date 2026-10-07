@@ -1,13 +1,13 @@
-package py.edu.uc.lp3.minecraft_taller_git_2026;
+package py.edu.uc.lp3;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = "py.edu.uc.lp3")
-public class MinecraftTallerGit2026Application {
+public class Application {
 
 	public static void main(String[] args) {
-		SpringApplication.run(MinecraftTallerGit2026Application.class, args);
+		SpringApplication.run(Application.class, args);
 	}
 
 }

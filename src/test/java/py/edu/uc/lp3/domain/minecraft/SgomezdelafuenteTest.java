@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain.minecraft;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -68,6 +68,17 @@ class SgomezdelafuenteTest {
 
 		assertEquals(20, jugador.getVida());
 		assertEquals(3, jugador.getArmadura());
+	}
+
+	@Test
+	void creeperYJugadorTienenConstructoresSobrecargados() {
+		Creeper creeperPorDefecto = new Creeper();
+		Creeper creeperConCarga = new Creeper(4);
+		Jugador jugadorPorDefecto = new Jugador();
+
+		assertEquals(0, creeperPorDefecto.getCargaExplosion());
+		assertEquals(4, creeperConCarga.getCargaExplosion());
+		assertEquals(20, jugadorPorDefecto.getVida());
 	}
 
 	@Test

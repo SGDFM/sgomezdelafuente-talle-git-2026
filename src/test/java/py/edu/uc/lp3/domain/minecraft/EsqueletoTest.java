@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain.minecraft;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -27,6 +27,28 @@ class EsqueletoTest {
 		assertEquals(16, jugador.getVida());
 		assertEquals(2, esqueleto.getFlechas());
 		assertTrue(jugador.estaViva());
+	}
+
+	@Test
+	void esqueletoTieneConstructoresSobrecargados() {
+		Esqueleto porDefecto = new Esqueleto();
+		Esqueleto conFlechas = new Esqueleto(8);
+
+		assertEquals(5, porDefecto.getFlechas());
+		assertEquals(8, conFlechas.getFlechas());
+		assertTrue(porDefecto.estaViva());
+	}
+
+	@Test
+	void dispararEstaSobrecargadoPorDistancia() {
+		Jugador jugador = new Jugador(20, 4, 2, 1);
+		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 2);
+
+		esqueleto.disparar(jugador, 15);
+
+		assertEquals(18, jugador.getVida());
+		assertEquals(1, esqueleto.getFlechas());
+		assertThrows(IllegalArgumentException.class, () -> esqueleto.disparar(jugador, 0));
 	}
 
 	@Test

@@ -1,8 +1,16 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain.minecraft;
 
 public class Esqueleto extends Mob {
 
 	private int flechas;
+
+	public Esqueleto() {
+		this(20, 5, 2, 5);
+	}
+
+	public Esqueleto(int flechas) {
+		this(20, 5, 2, flechas);
+	}
 
 	public Esqueleto(int vida, int danoBase, int velocidad, int flechas) {
 		super(vida, danoBase, velocidad, true);
@@ -21,6 +29,18 @@ public class Esqueleto extends Mob {
 	}
 
 	public void disparar(Jugador jugador) {
+		dispararConDano(jugador, getDanoBase());
+	}
+
+	public void disparar(Jugador jugador, int distancia) {
+		if (distancia <= 0) {
+			throw new IllegalArgumentException("La distancia debe ser positiva");
+		}
+		int dano = distancia > 10 ? Math.max(1, getDanoBase() - 2) : getDanoBase();
+		dispararConDano(jugador, dano);
+	}
+
+	private void dispararConDano(Jugador jugador, int dano) {
 		if (jugador == null) {
 			throw new IllegalArgumentException("El jugador es obligatorio");
 		}
@@ -28,7 +48,7 @@ public class Esqueleto extends Mob {
 			throw new IllegalStateException("El esqueleto se quedo sin flechas");
 		}
 		flechas--;
-		jugador.recibirDano(getDanoBase());
+		jugador.recibirDano(dano);
 	}
 
 	public void recargar(int cantidad) {

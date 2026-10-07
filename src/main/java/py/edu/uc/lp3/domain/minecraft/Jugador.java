@@ -1,10 +1,14 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain.minecraft;
 
 public class Jugador extends Entidad {
 
 	private static final int VIDA_MAXIMA = 20;
 
 	private int armadura;
+
+	public Jugador() {
+		this(VIDA_MAXIMA, 4, 3, 0);
+	}
 
 	public Jugador(int vida, int danoBase, int velocidad, int armadura) {
 		super(vida, danoBase, velocidad);

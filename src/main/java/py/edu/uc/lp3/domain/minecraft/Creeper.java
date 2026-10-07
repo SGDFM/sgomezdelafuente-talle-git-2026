@@ -1,8 +1,16 @@
-package py.edu.uc.lp3.minecraft;
+package py.edu.uc.lp3.domain.minecraft;
 
 public class Creeper extends Mob {
 
 	private int cargaExplosion;
+
+	public Creeper() {
+		this(20, 0, 2, 0);
+	}
+
+	public Creeper(int cargaExplosion) {
+		this(20, 0, 2, cargaExplosion);
+	}
 
 	public Creeper(int vida, int danoBase, int velocidad, int cargaExplosion) {
 		super(vida, danoBase, velocidad, true);
