@@ -2,7 +2,7 @@
 
 ## Objetivo
 
-Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/dfbdf519b86dd60384a51b330bc2a3fc711428a4
+Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 
 Implementar una API REST Spring Boot que exponga un modelo orientado a objetos del dominio Minecraft, aplicando encapsulamiento, herencia, polimorfismo y validacion de invariantes.
 

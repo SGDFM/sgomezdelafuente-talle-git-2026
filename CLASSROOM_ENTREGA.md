@@ -2,7 +2,7 @@
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/dfbdf519b86dd60384a51b330bc2a3fc711428a4
+Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 
 Alumno: Sebastian Gomez de la Fuente  
 Usuario GitHub: SGDFM  
@@ -211,5 +211,5 @@ https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 ## Enlace exacto al commit de la solucion
 
 ```text
-https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/dfbdf519b86dd60384a51b330bc2a3fc711428a4
+https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 ```

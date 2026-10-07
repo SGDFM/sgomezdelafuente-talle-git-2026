@@ -4,7 +4,7 @@ Nombre: Sebastian Gomez de la Fuente
 Usuario GitHub: SGDFM
 Comision: CYT646 F
 
-Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/7ae547ed8c618e43e0bf834c34d81a051fbbb7c6
+Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 
 ## Como levantar la API
 
