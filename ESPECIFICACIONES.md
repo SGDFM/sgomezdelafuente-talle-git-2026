@@ -2,7 +2,7 @@
 
 Este archivo resume las especificaciones aplicadas al dominio Minecraft. La entrega completa para Classroom se encuentra en `CLASSROOM_ENTREGA.md`.
 
-Commit de solucion POO-08: se agrega en el siguiente commit documental.
+Commit de solucion POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/9493e2f4ea2c9bd9f48b96278462901e9571da2a
 
 ## Alcance
 

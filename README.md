@@ -8,7 +8,7 @@ Comision: CYT646 F
 
 Dominio: Minecraft
 
-Commit de solucion POO-08: se agrega en el siguiente commit documental.
+Commit de solucion POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/9493e2f4ea2c9bd9f48b96278462901e9571da2a
 
 Commit anterior POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 
