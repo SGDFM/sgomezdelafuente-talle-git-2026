@@ -1,5 +1,10 @@
 package py.edu.uc.lp3.domain.minecraft;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+
+@Entity
+@DiscriminatorValue("JUGADOR")
 public class Jugador extends Entidad {
 
 	private static final int VIDA_MAXIMA = 20;
@@ -50,5 +55,11 @@ public class Jugador extends Entidad {
 	@Override
 	public String comportamiento() {
 		return "El jugador explora, recibe dano reducido por armadura y puede curarse";
+	}
+
+	@Override
+	public String describirUI() {
+		return "imagen=jugador.png, posicion=(" + getX() + "," + getY()
+				+ "), sonido=pasos, velocidad=" + getVelocidad();
 	}
 }

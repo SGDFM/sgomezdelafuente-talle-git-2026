@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
+import py.edu.uc.lp3.domain.minecraft.exception.ExplosionNoPermitidaException;
 
 class SgomezdelafuenteTest {
 
@@ -129,5 +130,50 @@ class SgomezdelafuenteTest {
 
 		assertTrue(creeper.comportamiento().contains("creeper"));
 		assertTrue(aldeano.comportamiento().contains("aldeano"));
+	}
+
+	@Test
+	void elementosDibujablesCompartenUICapable() {
+		List<UICapable> elementos = List.of(
+				new Jugador(),
+				new Zombie(20, 5, 1),
+				new ZombiePequeno(20, 3, 2, 4),
+				new Creeper(),
+				new Esqueleto(),
+				new Cerdo(10, 0, 2, true),
+				new Aldeano(20, 0, 1, true));
+
+		assertEquals(7, elementos.size());
+		assertTrue(elementos.stream().allMatch(elemento -> elemento.describirUI().contains("imagen=")));
+	}
+
+	@Test
+	void explosionRespetaCargaRadioYArmadura() {
+		Creeper creeper = new Creeper(20, 0, 2, 3);
+		Jugador jugador = new Jugador(20, 4, 3, 2);
+		Zombie zombieLejano = new Zombie(20, 5, 2);
+		zombieLejano.moverse(10, 0);
+
+		int dano = creeper.detonar();
+		assertTrue(jugador.recibirExplosion(creeper, dano, 5));
+		assertFalse(zombieLejano.recibirExplosion(creeper, dano, 5));
+
+		assertEquals(10, jugador.getVida());
+		assertEquals(20, zombieLejano.getVida());
+		assertFalse(creeper.estaViva());
+	}
+
+	@Test
+	void explotarNoEvitaLaReglaDeCargaMinima() {
+		Creeper creeper = new Creeper(1);
+
+		assertThrows(ExplosionNoPermitidaException.class, creeper::explotar);
+		assertTrue(creeper.estaViva());
+		assertEquals(1, creeper.getCargaExplosion());
+	}
+
+	@Test
+	void hostilidadNoTieneMutadorPublico() {
+		assertThrows(NoSuchMethodException.class, () -> Mob.class.getMethod("setHostil", boolean.class));
 	}
 }

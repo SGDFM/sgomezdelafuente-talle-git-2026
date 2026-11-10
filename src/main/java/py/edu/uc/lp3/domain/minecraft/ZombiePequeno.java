@@ -28,4 +28,10 @@ public class ZombiePequeno extends Zombie {
 	public String comportamiento() {
 		return "El zombie pequeno ataca como zombie y se mueve con velocidad total " + getVelocidadTotal();
 	}
+
+	@Override
+	public String describirUI() {
+		return "imagen=zombie-pequeno.png, posicion=(" + getX() + "," + getY()
+				+ "), sonido=gemido-agudo, velocidad=" + getVelocidadTotal();
+	}
 }

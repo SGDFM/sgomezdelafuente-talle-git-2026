@@ -62,4 +62,10 @@ public class Esqueleto extends Mob {
 	public String comportamiento() {
 		return "El esqueleto es un mob hostil que dispara flechas a distancia sobre el jugador";
 	}
+
+	@Override
+	public String describirUI() {
+		return "imagen=esqueleto.png, posicion=(" + getX() + "," + getY()
+				+ "), sonido=huesos, velocidad=" + getVelocidad();
+	}
 }

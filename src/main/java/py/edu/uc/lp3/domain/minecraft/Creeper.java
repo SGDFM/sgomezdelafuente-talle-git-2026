@@ -1,6 +1,14 @@
 package py.edu.uc.lp3.domain.minecraft;
 
+import jakarta.persistence.DiscriminatorValue;
+import jakarta.persistence.Entity;
+import py.edu.uc.lp3.domain.minecraft.exception.ExplosionNoPermitidaException;
+
+@Entity
+@DiscriminatorValue("CREEPER")
 public class Creeper extends Mob {
+
+	public static final int CARGA_MINIMA_EXPLOSION = 3;
 
 	private int cargaExplosion;
 
@@ -36,7 +44,20 @@ public class Creeper extends Mob {
 	}
 
 	public void explotar() {
+		detonar();
+	}
+
+	public int detonar() {
+		if (!estaViva()) {
+			throw new ExplosionNoPermitidaException("Un creeper sin vida no puede detonar");
+		}
+		if (cargaExplosion < CARGA_MINIMA_EXPLOSION) {
+			throw new ExplosionNoPermitidaException(
+					"El creeper necesita una carga minima de " + CARGA_MINIMA_EXPLOSION);
+		}
+		int danoExplosion = cargaExplosion * 4;
 		desaparecer();
+		return danoExplosion;
 	}
 
 	@Override
@@ -48,5 +69,12 @@ public class Creeper extends Mob {
 	@Override
 	public String comportamiento() {
 		return "El creeper aumenta su carga y explota; al desaparecer reinicia la carga";
+	}
+
+	@Override
+	public String describirUI() {
+		return "imagen=creeper.png, posicion=(" + getX() + "," + getY()
+				+ "), sonido=siseo, velocidad=" + getVelocidad()
+				+ ", cargaExplosion=" + cargaExplosion;
 	}
 }

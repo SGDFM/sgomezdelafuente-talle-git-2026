@@ -1,8 +1,15 @@
 package py.edu.uc.lp3.domain.minecraft;
 
+import jakarta.persistence.Entity;
+
+@Entity
 public abstract class Mob extends Entidad {
 
 	private boolean hostil;
+
+	protected Mob() {
+		super();
+	}
 
 	public Mob(int vida, int danoBase, int velocidad, boolean hostil) {
 		super(vida, danoBase, velocidad);
@@ -11,9 +18,5 @@ public abstract class Mob extends Entidad {
 
 	public boolean isHostil() {
 		return hostil;
-	}
-
-	public void setHostil(boolean hostil) {
-		this.hostil = hostil;
 	}
 }

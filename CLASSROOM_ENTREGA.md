@@ -1,215 +1,134 @@
-# Entrega Classroom - Taller Git 2026
+# Entrega Classroom - POO-08 Minecraft
+
+Alumno: Sebastian Gomez de la Fuente
+
+Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
+Commit de solucion POO-08: se agrega en el siguiente commit documental.
 
-Alumno: Sebastian Gomez de la Fuente  
-Usuario GitHub: SGDFM  
-Dominio elegido: Minecraft
+## Objetivo
 
-## Bitacora de trabajo
+Publicar un servicio HTTP Spring Boot con arquitectura de tres capas que persiste una familia polimorfica de Minecraft en H2. La aplicacion incluye CRUD REST, validaciones de negocio, una interfaz de dominio, una simulacion de explosiones y una jerarquia de excepciones con respuestas HTTP diferenciadas.
 
-### 1. Creacion del repositorio
+## Clases persistidas
 
-Se creo un repositorio publico en GitHub para el taller:
+- `Jugador`.
+- `Creeper`.
+- `Zombie`.
 
-```text
-sgomezdelafuente-talle-git-2026
-```
+Las tres pertenecen a la familia de `Entidad`. La estrategia JPA es `SINGLE_TABLE` y la tabla usa una columna discriminadora para reconocer el subtipo.
 
-El repositorio incluye:
-
-- `README.md` inicial.
-- Licencia Apache License 2.0.
-- Visibilidad publica.
-
-Luego se trabajo localmente con Git y se mantuvo el codigo sincronizado con GitHub.
-
-### 2. Incorporacion del proyecto Spring Boot
-
-Se incorporo un proyecto Spring Boot generado desde `start.spring.io` con las siguientes caracteristicas:
-
-- Maven.
-- Java 21.
-- Spring Web para API REST.
-- Packaging JAR.
-- Grupo base `py.edu.uc.lp3`.
-
-Se verifico que el proyecto compile y que la API arranque correctamente con:
-
-```bash
-./mvnw spring-boot:run
-```
-
-La aplicacion levanta en:
+## Arquitectura
 
 ```text
-http://localhost:8080
+EntidadController / SimulacionController
+                 |
+                 v
+EntidadService / ExplosionService
+                 |
+                 v
+EntidadRepository
+                 |
+                 v
+                H2
 ```
 
-Tambien se verifico con:
+Los controllers traducen HTTP. Los services validan y coordinan transacciones. El repositorio traduce entidades a filas. Las reglas de juego permanecen en el dominio.
 
-```bash
-./mvnw test
-```
-
-### 3. Modelado Minecraft
-
-Se incorporaron las clases del dominio Minecraft dentro del paquete:
+## URLs
 
 ```text
-src/main/java/py/edu/uc/lp3/domain/minecraft
+GET    /
+POST   /minecraft/sgomezdelafuente/entidades
+GET    /minecraft/sgomezdelafuente/entidades
+GET    /minecraft/sgomezdelafuente/entidades/{id}
+PUT    /minecraft/sgomezdelafuente/entidades/{id}
+DELETE /minecraft/sgomezdelafuente/entidades/{id}
+GET    /minecraft/sgomezdelafuente/entidades/ui
+POST   /minecraft/sgomezdelafuente/simulaciones/explosion
 ```
 
-Clases principales:
+## Invariantes
 
-- `Entidad`
-- `Jugador`
-- `Mob`
-- `Zombie`
-- `ZombiePequeno`
-- `Creeper`
-- `Esqueleto`
-- `Cerdo`
-- `Aldeano`
+- La vida inicial debe ser mayor que cero.
+- Dano base, velocidad, armadura y carga de explosion no pueden ser negativos.
+- Solo `JUGADOR`, `CREEPER` y `ZOMBIE` entran en el CRUD persistido.
+- Un PUT no puede cambiar el subtipo de una entidad existente.
+- El Creeper debe estar vivo y tener al menos tres puntos de carga para detonar.
+- El dano de explosion solo alcanza entidades vivas dentro del radio indicado.
+- Un POST invalido no agrega una fila a H2.
 
-El modelo aplica:
+## Interface De Dominio
 
-- Encapsulamiento con atributos `private`.
-- Herencia entre entidades.
-- Metodo abstracto en la clase base.
-- Constructores simples y sobrecargados.
-- Sobrecarga del mensaje `disparar` en `Esqueleto`.
-- Validacion de invariantes en las clases del dominio.
-- Comportamiento polimorfico sin preguntar el tipo concreto en el controller.
+`UICapable` declara `String describirUI()`. Las entidades concretas responden con imagen, posicion, sonido y velocidad como texto. El endpoint `/entidades/ui` solicita el mensaje usando el tipo de la interfaz y responde JSON.
 
-Despues de copiar y adaptar las clases, se corrigieron paquetes e imports hasta que Maven compilara correctamente.
+## Reglas De La Simulacion
 
-### 4. Controllers REST
+1. Un Creeper vivo con carga minima puede detonar; el dano es cuatro veces su carga.
+2. Jugador y Zombie reciben ese dano solo dentro del radio. El Jugador descuenta armadura mediante su sobreescritura de `recibirDano()`.
 
-Se organizaron las clases siguiendo la estructura semantica del template de LP3: dominio en `domain`, controllers en `rest/controller` y clase principal en el paquete raiz `py.edu.uc.lp3`.
+El Creeper desaparece y los tres participantes quedan actualizados en H2 dentro de una sola transaccion.
 
-Se agrego un `IndexController` para responder en la raiz de la API:
+## Excepciones
 
 ```text
-GET /
+EntidadNoEncontradaException   -> 404
+EstadoEntidadInvalidoException -> 400
+ExplosionNoPermitidaException  -> 409
 ```
 
-Respuesta esperada:
+Cada clase hereda de `MinecraftException` y tiene un handler HTTP propio.
+
+## H2
+
+```properties
+spring.datasource.url=jdbc:h2:file:./data/entidades
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.open-in-view=false
+spring.h2.console.enabled=true
+```
+
+Consola:
 
 ```text
-API Minecraft - SGDFM
+http://localhost:8080/h2-console
 ```
 
-Tambien se agrego un controller de dominio:
-
-```text
-/minecraft/sgomezdelafuente
-```
-
-Endpoints principales:
-
-```text
-GET /minecraft/sgomezdelafuente/creeper
-GET /minecraft/sgomezdelafuente/jugador
-GET /minecraft/sgomezdelafuente/comportamientos?vida=20&velocidad=2&cargaExplosion=3&flechas=5&comercializacion=true
-```
-
-El endpoint de comportamientos construye instancias del dominio usando parametros de la URL y devuelve JSON.
-
-### 5. Metodo abstracto y polimorfismo
-
-La clase base `Entidad` declara el metodo abstracto:
-
-```java
-public abstract String comportamiento();
-```
-
-Cada hija implementa su comportamiento especifico. Por ejemplo:
-
-- `Creeper`: representa un mob hostil que aumenta carga y explota.
-- `Aldeano`: representa un mob no hostil que puede comerciar.
-- `Esqueleto`: representa un mob hostil que dispara flechas.
-
-La sobrecarga aparece en constructores como `Esqueleto()`, `Esqueleto(int flechas)` y `Esqueleto(int vida, int danoBase, int velocidad, int flechas)`. Tambien aparece en `disparar(Jugador jugador)` y `disparar(Jugador jugador, int distancia)`.
-
-La sobreescritura aparece en `comportamiento()`, porque cada hija mantiene la misma firma heredada desde `Entidad` pero responde con su propio comportamiento.
-
-El controller trabaja con el tipo padre:
-
-```java
-Entidad primera = new Creeper(...);
-Entidad segunda = new Aldeano(...);
-Entidad tercera = new Esqueleto(...);
-```
-
-Luego pide el mensaje comun:
-
-```java
-entidad.comportamiento()
-```
-
-De esta forma, el controller no necesita preguntar si la entidad es `Creeper`, `Aldeano` o `Esqueleto` para obtener su comportamiento.
-
-### 6. README con diagrama Mermaid
-
-El `README.md` del repositorio incluye un diagrama Mermaid actualizado con las clases del dominio Minecraft.
-
-El diagrama muestra:
-
-- Clase base `Entidad`.
-- Clase intermedia `Mob`.
-- Especializaciones del dominio.
-- Relaciones de herencia.
-- Relacion de ataque o interaccion hacia `Jugador`.
-
-### 7. Colaboracion
-
-Se realizo una colaboracion sobre el repositorio de una companera:
-
-```text
-https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026
-```
-
-Se creo una rama de contribucion:
-
-```text
-sgdfm-contribucion-lp3
-```
-
-Se agrego una especializacion `Esqueleto` como mob hostil, con validacion de precision de arco, integracion al factory y tests.
-
-Pull request abierto:
-
-```text
-https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026/pull/1
-```
-
-### 8. Verificacion final
-
-Comandos utilizados para validar el proyecto:
+## Como Probar
 
 ```bash
 ./mvnw test
 ./mvnw spring-boot:run
 ```
 
-Resultado esperado:
-
-- Los tests pasan sin errores.
-- La API levanta en el puerto 8080.
-- `GET /` responde correctamente.
-- El endpoint de comportamientos devuelve JSON con comportamientos polimorficos.
-
-## Enlace final del repositorio
+Importar en Insomnia:
 
 ```text
-https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
+insomnia/poo-08-minecraft.json
 ```
 
-## Enlace exacto al commit de la solucion
+Recorrido recomendado:
 
-```text
-https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
-```
+1. Crear Creeper, Jugador y Zombie.
+2. Copiar los IDs a las variables del entorno de Insomnia.
+3. Listar y buscar los recursos.
+4. Actualizar el Creeper y comprobar el cambio con GET.
+5. Consultar el endpoint de `UICapable`.
+6. Ejecutar la simulacion de explosion.
+7. Hacer otro GET para verificar el estado persistido.
+8. Ejecutar POST invalido, ID inexistente y explosion sin carga.
+9. Borrar un recurso y verificar el `404` posterior.
+
+## Evidencias Esperadas
+
+- POST responde `201` y un `id` generado.
+- GET lista datos recuperados desde H2.
+- PUT conserva el cambio en un GET posterior.
+- DELETE responde `204`.
+- La simulacion modifica las tres entidades y el cambio permanece.
+- Cada excepcion devuelve JSON con tipo y codigo diferente.
+- La tabla `ENTIDADES` puede verse desde la consola H2.

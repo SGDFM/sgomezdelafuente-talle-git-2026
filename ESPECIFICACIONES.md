@@ -1,63 +1,25 @@
-# Especificaciones del ejercicio
+# Especificaciones POO-08
 
-## Objetivo
+Este archivo resume las especificaciones aplicadas al dominio Minecraft. La entrega completa para Classroom se encuentra en `CLASSROOM_ENTREGA.md`.
 
-Commit de solucion POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
+Commit de solucion POO-08: se agrega en el siguiente commit documental.
 
-Implementar una API REST Spring Boot que exponga un modelo orientado a objetos del dominio Minecraft, aplicando encapsulamiento, herencia, polimorfismo y validacion de invariantes.
+## Alcance
 
-## Dominio
+- Persistencia H2 de `Jugador`, `Creeper` y `Zombie`.
+- CRUD REST de la familia `Entidad`.
+- Arquitectura controller, service y repository.
+- Interfaz `UICapable` usada por un endpoint de lectura.
+- Simulacion persistida de explosiones con dos reglas.
+- Excepciones de dominio y handlers por tipo.
+- Coleccion Insomnia versionada.
 
-Minecraft.
+## Aceptacion
 
-La clase base es `Entidad`. Las especializaciones principales son `Jugador`, `Mob`, `Zombie`, `ZombiePequeno`, `Creeper`, `Esqueleto`, `Cerdo` y `Aldeano`.
-
-Las clases estan organizadas semanticamente siguiendo el template de LP3:
-
-- `py.edu.uc.lp3.domain.minecraft`: clases del dominio.
-- `py.edu.uc.lp3.rest.controller`: controllers REST.
-- `py.edu.uc.lp3.Application`: clase principal Spring Boot.
-
-## Consignas cubiertas
-
-- Proyecto Spring Boot Maven con Java 21.
-- API REST con `IndexController` en `GET /`.
-- Controller de dominio en `/minecraft/sgomezdelafuente`.
-- Clase base abstracta `Entidad` con método abstracto `comportamiento()`.
-- Hijas independientes que implementan comportamiento propio.
-- Controller que pide comportamiento usando el tipo padre `Entidad`.
-- Constructores simples y sobrecargados en `Jugador`, `Creeper` y `Esqueleto`.
-- Sobrecarga del mensaje `Esqueleto.disparar(...)`.
-- Estado encapsulado con atributos `private`.
-- Reglas de validacion dentro de las clases.
-- README con diagrama Mermaid alineado al codigo.
-
-## Criterios de aceptacion
-
-- El proyecto compila con Maven.
-- La API levanta en `http://localhost:8080`.
-- El estado no puede quedar invalido desde el controller.
-- No hay asignacion directa a campos desde fuera de las clases.
-- El endpoint de comportamientos no pregunta el tipo concreto para armar el mensaje.
-- Los constructores sobrecargados dejan siempre objetos validos.
-- El metodo sobrecargado `disparar` consume flechas y valida distancia.
-
-## Como probar
-
-```bash
-./mvnw test
-./mvnw spring-boot:run
-```
-
-Endpoints sugeridos:
-
-```text
-GET http://localhost:8080/
-GET http://localhost:8080/minecraft/sgomezdelafuente/comportamientos?vida=20&velocidad=2&cargaExplosion=3&flechas=5&comercializacion=true
-GET http://localhost:8080/minecraft/sgomezdelafuente/creeper
-GET http://localhost:8080/minecraft/sgomezdelafuente/jugador
-```
-
-## Revision pedida
-
-Verificar si desde el controller o desde otra clase se puede romper algun invariante del dominio, especialmente vida negativa, carga de explosion negativa, flechas negativas o armadura negativa.
+- `./mvnw test` termina correctamente.
+- `./mvnw spring-boot:run` levanta la API.
+- POST, GET, PUT y DELETE trabajan contra H2.
+- Un POST ilegal no altera la cantidad de filas.
+- Un GET posterior confirma el resultado de la simulacion.
+- Los tres errores del dominio producen estados HTTP distinguibles.
+- `insomnia/poo-08-minecraft.json` permite reproducir el recorrido.
