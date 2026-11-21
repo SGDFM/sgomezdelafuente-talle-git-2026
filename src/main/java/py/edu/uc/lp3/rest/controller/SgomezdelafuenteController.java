@@ -1,5 +1,7 @@
 package py.edu.uc.lp3.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -12,6 +14,7 @@ import py.edu.uc.lp3.service.JuegoService;
 
 @RestController
 @RequestMapping("/minecraft/sgomezdelafuente")
+@Tag(name = "Demostración POO", description = "Comportamientos polimórficos conservados de POO-06")
 public class SgomezdelafuenteController {
 	private final JuegoService juegoService;
 
@@ -20,6 +23,7 @@ public class SgomezdelafuenteController {
 	}
 
 	@GetMapping("/comportamientos")
+	@Operation(summary = "Construye y describe tres entidades sin persistirlas")
 	public ComportamientosRespuesta comportamientos(
 			@RequestParam(defaultValue = "20") int vida,
 			@RequestParam(defaultValue = "2") int velocidad,
