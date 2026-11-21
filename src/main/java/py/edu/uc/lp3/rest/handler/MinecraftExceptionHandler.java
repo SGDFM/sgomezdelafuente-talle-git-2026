@@ -8,9 +8,12 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import py.edu.uc.lp3.rest.dto.ErrorResponse;
+import py.edu.uc.lp3.rest.dto.IntegracionErrorResponse;
+import py.edu.uc.lp3.service.exception.CompaneroNoDisponibleException;
 import py.edu.uc.lp3.service.exception.EntidadNoEncontradaException;
 import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
 import py.edu.uc.lp3.service.exception.ExplosionNoPermitidaException;
+import py.edu.uc.lp3.service.exception.RechazoCompaneroException;
 
 @RestControllerAdvice
 public class MinecraftExceptionHandler {
@@ -36,6 +39,36 @@ public class MinecraftExceptionHandler {
 	@ExceptionHandler({IllegalArgumentException.class, HttpMessageNotReadableException.class})
 	public ResponseEntity<ErrorResponse> solicitudInvalida(Exception exception, HttpServletRequest request) {
 		return responder(HttpStatus.BAD_REQUEST, exception, request);
+	}
+
+	@ExceptionHandler(RechazoCompaneroException.class)
+	public ResponseEntity<IntegracionErrorResponse> rechazoCompanero(
+			RechazoCompaneroException exception, HttpServletRequest request) {
+		IntegracionErrorResponse body = new IntegracionErrorResponse(
+				Instant.now(),
+				422,
+				exception.getClass().getSimpleName(),
+				exception.getCompanero(),
+				exception.getEstadoRemoto(),
+				exception.getCuerpoRemoto(),
+				exception.getMessage(),
+				request.getRequestURI());
+		return ResponseEntity.unprocessableContent().body(body);
+	}
+
+	@ExceptionHandler(CompaneroNoDisponibleException.class)
+	public ResponseEntity<IntegracionErrorResponse> companeroNoDisponible(
+			CompaneroNoDisponibleException exception, HttpServletRequest request) {
+		IntegracionErrorResponse body = new IntegracionErrorResponse(
+				Instant.now(),
+				502,
+				exception.getClass().getSimpleName(),
+				exception.getCompanero(),
+				null,
+				null,
+				exception.getMessage(),
+				request.getRequestURI());
+		return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(body);
 	}
 
 	private ResponseEntity<ErrorResponse> responder(

@@ -1,4 +1,4 @@
-# Entrega Classroom - POO-08 Minecraft
+# Entrega Classroom - POO-09 Minecraft
 
 Alumno: Sebastián Gómez de la Fuente
 
@@ -6,129 +6,165 @@ Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solución POO-08: se agrega en el siguiente commit documental.
+Commit de solución POO-09: se agrega en el siguiente commit documental.
 
 ## Objetivo
 
-Publicar un servicio HTTP Spring Boot con arquitectura de tres capas que persiste una familia polimórfica de Minecraft en H2. La aplicación incluye CRUD REST, validaciones de negocio, una interfaz de servicio, una simulación de explosiones y una jerarquía de excepciones con respuestas HTTP diferenciadas.
+Publicar la API propia mediante OpenAPI y Swagger UI, consumir con `WebClient` las APIs REST de dos compañeros y resolver un escenario coordinado. A1 persiste la jugada en su H2 únicamente cuando A2 y A3 responden exitosamente.
 
-## Clases persistidas
+## Integrantes y responsabilidades
 
-- `Jugador`.
-- `Creeper`.
-- `Zombie`.
+| Rol | Integrante | Repositorio | Responsabilidad integrada |
+|---|---|---|---|
+| A1 | Sebastián Gómez de la Fuente | https://github.com/SGDFM/sgomezdelafuente-talle-git-2026 | Orquestación, respuesta HTTP y persistencia local. |
+| A2 | Ruth Santacruz | https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026 | Explosión y reacción en cadena. |
+| A3 | Matías Duarte | https://github.com/Cemelele/mfdc-taller-git-2026 | Radio, víctimas y ciclo de vida del Creeper. |
 
-Las tres pertenecen a la familia de `Entidad`. La estrategia JPA es `SINGLE_TABLE` y la tabla usa una columna discriminadora para reconocer el subtipo.
+Los repositorios A2 y A3 no publicaban documentos OpenAPI al momento de la implementación. Los adaptadores se construyeron contra sus contratos REST POO-08 visibles y permiten cambiar URL y ruta mediante configuración.
 
-## Arquitectura
-
-```text
-EntidadController / SimulacionController
-                 |
-                 v
-EntidadService / JuegoService / ExplosionService
-                 |
-                 v
-EntidadRepository
-                 |
-                 v
-                H2
-```
-
-Los controladores traducen HTTP. Los servicios validan, ejecutan las reglas y coordinan transacciones. El repositorio traduce entidades a filas. Las entidades JPA conservan únicamente estado y no lanzan excepciones.
-
-## URLs
+## Contrato propio
 
 ```text
-GET    /
-POST   /minecraft/sgomezdelafuente/entidades
-GET    /minecraft/sgomezdelafuente/entidades
-GET    /minecraft/sgomezdelafuente/entidades/{id}
-PUT    /minecraft/sgomezdelafuente/entidades/{id}
-DELETE /minecraft/sgomezdelafuente/entidades/{id}
-GET    /minecraft/sgomezdelafuente/entidades/ui
-POST   /minecraft/sgomezdelafuente/simulaciones/explosion
+GET  /v3/api-docs
+GET  /swagger-ui.html
+POST /minecraft/sgomezdelafuente/escenarios/explosiones
+GET  /minecraft/sgomezdelafuente/escenarios/explosiones
 ```
 
-## Invariantes
+El POST coordinado puede responder:
 
-- La vida inicial debe ser mayor que cero.
-- Daño base, velocidad, armadura y carga de explosión no pueden ser negativos.
-- Solo `JUGADOR`, `CREEPER` y `ZOMBIE` entran en el CRUD persistido.
-- Un PUT no puede cambiar el subtipo de una entidad existente.
-- El Creeper debe estar vivo y tener al menos tres puntos de carga para detonar.
-- El daño de explosión solo alcanza entidades vivas dentro del radio indicado.
-- Un POST inválido no agrega una fila a H2.
+| Estado | Significado |
+|---|---|
+| `201` | A2 y A3 aceptaron; A1 persistió la jugada. |
+| `400` | El pedido local no tiene los datos obligatorios. |
+| `422` | A2 o A3 rechazó su regla; la respuesta identifica al compañero. |
+| `502` | No fue posible contactar al compañero identificado. |
 
-## Interfaz de servicio
-
-`UICapable` declara `String describirUI(Entidad entidad)`. `JuegoService` extiende esa interfaz y `JuegoServiceImpl` produce como texto la imagen, la posición, el sonido y la velocidad. El endpoint `/entidades/ui` solicita el mensaje mediante el contrato `UICapable` heredado por `JuegoService` y responde con un JSON, sin colocar presentación en las entidades.
-
-## Reglas de la simulación
-
-1. Un Creeper vivo con carga mínima puede detonar; el daño es cuatro veces su carga.
-2. El Jugador y el Zombie reciben ese daño solo dentro del radio; el servicio reduce el daño del Jugador según su armadura.
-
-El Creeper desaparece y los tres participantes quedan actualizados en H2 dentro de una sola transacción.
-
-## Excepciones
+## APIs consumidas
 
 ```text
-EntidadNoEncontradaException   -> 404
-EstadoEntidadInvalidoException -> 400
-ExplosionNoPermitidaException  -> 409
+A2 Ruth:   POST http://localhost:8081/api/minecraft/simulaciones/explosion
+A3 Matías: POST http://localhost:8082/api/simulaciones/explosion
 ```
 
-Cada clase hereda de `MinecraftException` y tiene un método manejador HTTP propio.
-
-## H2
-
-```properties
-spring.datasource.url=jdbc:h2:file:./data/entidades
-spring.datasource.username=sa
-spring.datasource.password=
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.open-in-view=false
-spring.h2.console.enabled=true
-```
-
-Consola:
+Variables admitidas:
 
 ```text
-http://localhost:8080/h2-console
+RUTH_BASE_URL
+RUTH_EXPLOSION_PATH
+MATIAS_BASE_URL
+MATIAS_EXPLOSION_PATH
 ```
 
-## Cómo probar
+## Ejecución
+
+Iniciar A2, A3 y A1 en puertos diferentes:
 
 ```bash
-./mvnw test
+# A2
+SERVER_PORT=8081 ./mvnw spring-boot:run
+
+# A3
+SERVER_PORT=8082 ./mvnw spring-boot:run
+
+# A1
 ./mvnw spring-boot:run
 ```
 
-Importar en Insomnia:
+A2 y A3 deben tener previamente Creepers y víctimas válidos en sus bases. Los IDs se colocan en la colección Insomnia.
 
-```text
-insomnia/poo-08-minecraft.json
+## Camino feliz
+
+```json
+{
+  "descripcion": "Explosión coordinada en una mina",
+  "ruth": {
+    "creeperId": 1
+  },
+  "matias": {
+    "creeperId": 1,
+    "cargado": true,
+    "encendido": true,
+    "victimas": [
+      {
+        "hostilId": 2,
+        "distancia": 2.0
+      }
+    ]
+  }
+}
 ```
 
-Recorrido recomendado:
+Secuencia:
 
-1. Crear Creeper, Jugador y Zombie.
-2. Copiar los IDs a las variables del entorno de Insomnia.
-3. Listar y buscar los recursos.
-4. Actualizar el Creeper y comprobar el cambio con GET.
-5. Consultar el endpoint de `UICapable`.
-6. Ejecutar la simulación de explosión.
-7. Hacer otro GET para verificar el estado persistido.
-8. Ejecutar POST inválido, ID inexistente y explosión sin carga.
-9. Borrar un recurso y verificar el `404` posterior.
+1. A1 valida el pedido.
+2. A1 consulta a Ruth mediante `WebClient`.
+3. Si Ruth acepta, A1 consulta a Matías.
+4. Si Matías acepta, `JugadaCruzadaRepository` inserta la jugada en H2.
+5. A1 responde `201` con el ID generado.
 
-## Evidencias esperadas
+## Rechazos y persistencia
 
-- POST responde `201` y un `id` generado.
-- GET lista datos recuperados desde H2.
-- PUT conserva el cambio en un GET posterior.
-- DELETE responde `204`.
-- La simulación modifica las tres entidades y el cambio permanece.
-- Cada excepción devuelve un JSON con un tipo y un código diferentes.
-- La tabla `ENTIDADES` puede verse desde la consola H2.
+Un error remoto se convierte en `IntegracionErrorResponse`, que conserva el estado y cuerpo remotos e identifica `A2 - Ruth Santacruz` o `A3 - Matías Duarte`. Si A2 rechaza, A3 no es consultado. Si cualquiera rechaza, A1 no inserta una fila.
+
+La garantía transaccional corresponde a la H2 de A1. No hay una transacción distribuida que pueda revertir un efecto ya realizado dentro de A2 antes de un eventual rechazo de A3.
+
+## Logging
+
+Log4j2 conserva el nivel raíz en `INFO` y habilita `DEBUG` para los clientes de integración y `EscenarioCruzadoServiceImpl`. Las trazas muestran inicio, compañero consultado, estado y cuerpo remoto, aceptación y persistencia local.
+
+## Insomnia
+
+Importar:
+
+```text
+insomnia/poo-09-integracion.json
+```
+
+La colección contiene:
+
+1. Consulta del documento OpenAPI.
+2. Escenario aceptado por A2 y A3.
+3. Rechazo de Ruth con un Creeper inexistente.
+4. Rechazo de Matías con un Creeper inexistente.
+5. GET de jugadas aceptadas y persistidas.
+
+Antes de ejecutar se deben actualizar los IDs del entorno con registros reales de A2 y A3. Cada explosión puede cambiar el estado remoto; para repetir una evidencia se deben preparar nuevos datos.
+
+## Arquitectura
+
+```mermaid
+flowchart LR
+    Cliente --> Controller[EscenarioCruzadoController]
+    Controller --> Service[EscenarioCruzadoServiceImpl]
+    Service --> RuthClient[WebClient Ruth]
+    Service --> MatiasClient[WebClient Matías]
+    RuthClient --> A2[API Ruth]
+    MatiasClient --> A3[API Matías]
+    Service --> Repository[JugadaCruzadaRepository]
+    Repository --> H2[(H2 A1)]
+```
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant A1 as A1 Sebastián
+    participant A2 as A2 Ruth
+    participant A3 as A3 Matías
+    participant DB as H2 A1
+    C->>A1: POST escenario
+    A1->>A2: POST explosión
+    A2-->>A1: 2xx
+    A1->>A3: POST explosión
+    A3-->>A1: 2xx
+    A1->>DB: INSERT jugada
+    A1-->>C: 201 Created
+```
+
+## Pruebas
+
+```bash
+./mvnw test
+```
+
+Resultado: 35 pruebas, 0 fallos y 0 errores. POO-09 verifica el camino feliz, los rechazos de A2 y A3, la indisponibilidad `502`, la ausencia de persistencia ante errores, `/v3/api-docs` y la redirección de Swagger UI.

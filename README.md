@@ -8,9 +8,134 @@ Comisión: CYT646 F
 
 Dominio: Minecraft
 
-Commit de solución POO-08: se agrega en el siguiente commit documental.
+Commit de solución POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/58861f5135afe589ed34f2985874d3ef0c0087ef
+
+Commit de solución POO-09: se agrega en el siguiente commit documental.
 
 Commit anterior POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
+
+## Objetivo POO-09
+
+Publicar el contrato de la API con OpenAPI y Swagger UI, consumir con `WebClient` las APIs de dos compañeros y ejecutar un escenario cruzado. La jugada propia se guarda en H2 únicamente cuando Ruth (A2) y Matías (A3) aceptan sus respectivas reglas.
+
+## Mapa del grupo
+
+| Rol | Integrante | Repositorio | Uso |
+|---|---|---|---|
+| A1 | Sebastián Gómez de la Fuente | [SGDFM](https://github.com/SGDFM/sgomezdelafuente-talle-git-2026) | Orquesta y persiste el escenario cruzado. |
+| A2 | Ruth Santacruz | [ruthsantacruzuca](https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026) | Valida explosión y reacción en cadena. |
+| A3 | Matías Duarte | [Cemelele](https://github.com/Cemelele/mfdc-taller-git-2026) | Valida radio, víctimas y ciclo de vida del Creeper. |
+
+Al implementar esta entrega, los repositorios A2 y A3 todavía no exponían un documento OpenAPI. Por eso los adaptadores usan los contratos REST POO-08 visibles en sus códigos. Las rutas y URLs quedaron externalizadas para poder ajustarlas sin recompilar.
+
+## OpenAPI y Swagger UI
+
+Con A1 en ejecución:
+
+```text
+OpenAPI JSON: http://localhost:8080/v3/api-docs
+Swagger UI:   http://localhost:8080/swagger-ui.html
+```
+
+Todos los controladores propios están publicados en el documento. El escenario cruzado informa las respuestas `201`, `400`, `422` y `502`.
+
+## Arranque integrado
+
+Los tres proyectos deben usar puertos diferentes. Primero se deben iniciar A2 y A3 con datos válidos en sus respectivas H2; luego se inicia A1:
+
+```bash
+# Repositorio de Ruth (A2)
+SERVER_PORT=8081 ./mvnw spring-boot:run
+
+# Repositorio de Matías (A3)
+SERVER_PORT=8082 ./mvnw spring-boot:run
+
+# Este repositorio (A1)
+./mvnw spring-boot:run
+```
+
+Configuración admitida por A1:
+
+| Variable | Valor predeterminado |
+|---|---|
+| `RUTH_BASE_URL` | `http://localhost:8081` |
+| `RUTH_EXPLOSION_PATH` | `/api/minecraft/simulaciones/explosion` |
+| `MATIAS_BASE_URL` | `http://localhost:8082` |
+| `MATIAS_EXPLOSION_PATH` | `/api/simulaciones/explosion` |
+
+## Escenario cruzado
+
+Endpoint coordinador:
+
+```text
+POST /minecraft/sgomezdelafuente/escenarios/explosiones
+GET  /minecraft/sgomezdelafuente/escenarios/explosiones
+```
+
+Ejemplo de entrada, cuyos IDs deben existir en las bases de A2 y A3:
+
+```json
+{
+  "descripcion": "Explosión coordinada en una mina",
+  "ruth": {
+    "creeperId": 1
+  },
+  "matias": {
+    "creeperId": 1,
+    "cargado": true,
+    "encendido": true,
+    "victimas": [
+      {
+        "hostilId": 2,
+        "distancia": 2.0
+      }
+    ]
+  }
+}
+```
+
+Flujo aplicado:
+
+1. A1 valida la estructura local.
+2. `WebClientRuthExplosionClient` consulta A2.
+3. Solo si A2 acepta, `WebClientMatiasExplosionClient` consulta A3.
+4. Solo si A3 también acepta, A1 inserta una fila en `JUGADAS_CRUZADAS`.
+5. Un rechazo remoto produce `422` e identifica al compañero; una conexión fallida produce `502`.
+
+La transacción garantiza que un rechazo no inserta una jugada en la H2 de A1. No existe una transacción distribuida entre los tres procesos: si A2 modifica su propia base antes de que A3 rechace, A1 no puede deshacer ese efecto remoto.
+
+Los clientes y el orquestador registran en nivel `DEBUG` cada consulta, estado remoto, aceptación y persistencia, sin cambiar el nivel `INFO` del resto de la aplicación.
+
+## Diagramas POO-09
+
+```mermaid
+flowchart LR
+    C[Insomnia o Swagger UI] --> A1[A1 - API Sebastián :8080]
+    A1 --> S[EscenarioCruzadoService]
+    S --> WR[WebClient Ruth]
+    S --> WM[WebClient Matías]
+    WR --> A2[A2 - Ruth :8081]
+    WM --> A3[A3 - Matías :8082]
+    S --> R[JugadaCruzadaRepository]
+    R --> H2[(H2 A1)]
+```
+
+```mermaid
+sequenceDiagram
+    participant C as Cliente
+    participant A1 as A1 Sebastián
+    participant A2 as A2 Ruth
+    participant A3 as A3 Matías
+    participant DB as H2 A1
+    C->>A1: POST escenario
+    A1->>A2: POST explosión
+    A2-->>A1: 2xx aceptado
+    A1->>A3: POST explosión
+    A3-->>A1: 2xx aceptado
+    A1->>DB: INSERT jugada cruzada
+    DB-->>A1: id generado
+    A1-->>C: 201 Created
+```
 
 ## Objetivo POO-08
 
@@ -132,6 +257,8 @@ JPA necesita un constructor sin argumentos. `Entidad`, `Mob` y `Zombie` lo expon
 | `DELETE` | `/minecraft/sgomezdelafuente/entidades/{id}` | Elimina la fila y responde `204`. |
 | `GET` | `/minecraft/sgomezdelafuente/entidades/ui` | Pide `describirUI()` mediante `UICapable`. |
 | `POST` | `/minecraft/sgomezdelafuente/simulaciones/explosion` | Ejecuta y persiste la simulación. |
+| `POST` | `/minecraft/sgomezdelafuente/escenarios/explosiones` | Consulta A2 y A3; persiste solamente si ambos aceptan. |
+| `GET` | `/minecraft/sgomezdelafuente/escenarios/explosiones` | Lista las jugadas cruzadas aceptadas. |
 | `GET` | `/minecraft/sgomezdelafuente/comportamientos` | Conserva la demostración polimórfica de POO-06. |
 
 ## Ejemplos de curl para el CRUD
@@ -269,6 +396,7 @@ Colección versionada:
 
 ```text
 insomnia/poo-08-minecraft.json
+insomnia/poo-09-integracion.json
 ```
 
 Importación:
@@ -290,7 +418,7 @@ Orden de ejecución:
 8. Ejecutar POST ilegal, ID inexistente y explosión sin carga.
 9. Ejecutar DELETE y confirmar luego el `404`.
 
-La colección contiene una solicitud para cada verbo del CRUD, cada subclase de la jerarquía de excepciones y cada comportamiento observable exigido.
+La colección POO-08 contiene una solicitud para cada verbo del CRUD, cada subclase de la jerarquía de excepciones y cada comportamiento observable exigido. La colección POO-09 incorpora OpenAPI, el camino feliz, un rechazo de cada compañero y la lectura de jugadas persistidas. Antes de usarla se deben reemplazar sus IDs por los creados en A2 y A3.
 
 ## Sobrecarga y sobreescritura conservadas
 
@@ -401,4 +529,4 @@ classDiagram
 ./mvnw test
 ```
 
-Las pruebas cubren el estado del dominio, las reglas de los servicios, `UICapable`, el CRUD persistido, el POST ilegal, la simulación, el estado posterior y los manejadores HTTP.
+Las 35 pruebas cubren el estado del dominio, las reglas de los servicios, `UICapable`, el CRUD persistido, el POST ilegal, la simulación, el estado posterior, OpenAPI, el escenario exitoso, los rechazos A2/A3, la indisponibilidad remota y la ausencia de persistencia ante errores.

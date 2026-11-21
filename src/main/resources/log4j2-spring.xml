@@ -9,6 +9,9 @@
         <Logger name="py.edu.uc.lp3.integration" level="debug" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
+        <Logger name="py.edu.uc.lp3.service.impl.EscenarioCruzadoServiceImpl" level="debug" additivity="false">
+            <AppenderRef ref="Console"/>
+        </Logger>
         <Root level="info">
             <AppenderRef ref="Console"/>
         </Root>

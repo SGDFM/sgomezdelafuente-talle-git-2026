@@ -3,7 +3,7 @@
 ## Asistente utilizado
 
 - Herramienta: OpenCode / ChatGPT.
-- Modelo usado en POO-08: `openai/gpt-5.6-sol`.
+- Modelo usado en POO-08 y POO-09: `openai/gpt-5.6-sol`.
 
 ## Resumen de prompts usados
 
@@ -22,6 +22,14 @@
 - Crear una colección de Insomnia con el flujo exitoso y las solicitudes que provocan cada excepción.
 - Corregir la separación de responsabilidades para que las entidades solo conserven estado y los servicios ejecuten todas las reglas.
 - Revisar la ortografía y la gramática de toda la documentación entregada.
+- Publicar todos los controladores mediante OpenAPI y Swagger UI.
+- Identificar a Ruth Santacruz como A2 y a Matías Duarte como A3 e inspeccionar sus contratos REST POO-08.
+- Crear clientes `WebClient` con URLs configurables para consultar las explosiones de A2 y A3.
+- Orquestar un escenario que consulta primero A2, luego A3 y persiste en H2 solo cuando ambos aceptan.
+- Diferenciar un rechazo remoto (`422`) de un servicio no disponible (`502`) e identificar al compañero en la respuesta.
+- Registrar los pasos de integración con Log4j2 en nivel `DEBUG`.
+- Probar el camino feliz, un rechazo por compañero, la indisponibilidad y la ausencia de persistencia ante errores.
+- Crear una colección Insomnia y diagramas Mermaid para la integración POO-09.
 
 
 ## Validaciones realizadas
