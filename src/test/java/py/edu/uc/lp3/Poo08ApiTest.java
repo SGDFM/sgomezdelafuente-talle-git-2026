@@ -2,6 +2,7 @@ package py.edu.uc.lp3;
 
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -93,6 +94,19 @@ class Poo08ApiTest {
 	}
 
 	@Test
+	void rechazaVidaSuperiorAlMaximoSinGuardar() throws Exception {
+		mockMvc.perform(post(ENTIDADES)
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"tipo":"ZOMBIE","vida":5000,"danoBase":5,"velocidad":1}
+						"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("EstadoEntidadInvalidoException"));
+
+		assertEquals(0, repository.count());
+	}
+
+	@Test
 	void endpointUiUsaMensajesDeLaInterfaz() throws Exception {
 		service.crear(new Jugador(20, 4, 3, 2));
 		service.crear(new Creeper(20, 0, 2, 3));
@@ -124,6 +138,19 @@ class Poo08ApiTest {
 		mockMvc.perform(get(ENTIDADES + "/{id}", jugador.getId()))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.vida").value(10));
+
+		mockMvc.perform(put(ENTIDADES + "/{id}", creeper.getId())
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("""
+						{"tipo":"CREEPER","vida":20,"danoBase":0,"velocidad":3,"cargaExplosion":5}
+						"""))
+				.andExpect(status().isBadRequest())
+				.andExpect(jsonPath("$.error").value("EstadoEntidadInvalidoException"));
+
+		mockMvc.perform(get(ENTIDADES + "/{id}", creeper.getId()))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.vida").value(0))
+				.andExpect(jsonPath("$.cargaExplosion").value(0));
 	}
 
 	@Test

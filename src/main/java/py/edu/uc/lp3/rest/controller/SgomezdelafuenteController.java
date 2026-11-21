@@ -8,10 +8,16 @@ import py.edu.uc.lp3.domain.minecraft.Aldeano;
 import py.edu.uc.lp3.domain.minecraft.Creeper;
 import py.edu.uc.lp3.domain.minecraft.Entidad;
 import py.edu.uc.lp3.domain.minecraft.Esqueleto;
+import py.edu.uc.lp3.service.JuegoService;
 
 @RestController
 @RequestMapping("/minecraft/sgomezdelafuente")
 public class SgomezdelafuenteController {
+	private final JuegoService juegoService;
+
+	public SgomezdelafuenteController(JuegoService juegoService) {
+		this.juegoService = juegoService;
+	}
 
 	@GetMapping("/comportamientos")
 	public ComportamientosRespuesta comportamientos(
@@ -23,18 +29,24 @@ public class SgomezdelafuenteController {
 		Entidad primera = new Creeper(vida, 0, velocidad, cargaExplosion);
 		Entidad segunda = new Aldeano(vida, 0, velocidad, comercializacion);
 		Entidad tercera = new Esqueleto(vida, 5, velocidad, flechas);
-		return new ComportamientosRespuesta(EntidadResumen.desde(primera), EntidadResumen.desde(segunda), EntidadResumen.desde(tercera));
+		juegoService.validarEstado(primera);
+		juegoService.validarEstado(segunda);
+		juegoService.validarEstado(tercera);
+		return new ComportamientosRespuesta(
+				EntidadResumen.desde(primera, juegoService),
+				EntidadResumen.desde(segunda, juegoService),
+				EntidadResumen.desde(tercera, juegoService));
 	}
 
 	public record EntidadResumen(String tipo, int vida, int velocidad, boolean vivo, String comportamiento) {
 
-		static EntidadResumen desde(Entidad entidad) {
+		static EntidadResumen desde(Entidad entidad, JuegoService juegoService) {
 			return new EntidadResumen(
 					entidad.getClass().getSimpleName(),
 					entidad.getVida(),
 					entidad.getVelocidad(),
-					entidad.estaViva(),
-					entidad.comportamiento());
+					juegoService.estaViva(entidad),
+					juegoService.comportamiento(entidad));
 		}
 	}
 

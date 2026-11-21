@@ -17,14 +17,4 @@ public class Aldeano extends Mob {
 		this.comercializacion = comercializacion;
 	}
 
-	@Override
-	public String comportamiento() {
-		return comercializacion ? "El aldeano no es hostil y puede comerciar" : "El aldeano no es hostil y no comercia";
-	}
-
-	@Override
-	public String describirUI() {
-		return "imagen=aldeano.png, posicion=(" + getX() + "," + getY()
-				+ "), sonido=murmuro, velocidad=" + getVelocidad();
-	}
 }

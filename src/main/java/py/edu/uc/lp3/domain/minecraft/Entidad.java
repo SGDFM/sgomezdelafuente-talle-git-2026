@@ -14,7 +14,7 @@ import jakarta.persistence.Table;
 @Table(name = "entidades")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "tipo_entidad")
-public abstract class Entidad implements UICapable {
+public abstract class Entidad {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,7 +36,7 @@ public abstract class Entidad implements UICapable {
 	private int y;
 
 	protected Entidad() {
-		// Requerido por JPA; los constructores de negocio establecen el estado valido.
+		// Requerido por JPA.
 	}
 
 	public Entidad(int vida, int danoBase, int velocidad) {
@@ -54,7 +54,7 @@ public abstract class Entidad implements UICapable {
 	}
 
 	public void setVida(int vida) {
-		this.vida = Math.max(0, vida);
+		this.vida = vida;
 	}
 
 	public int getDanoBase() {
@@ -62,9 +62,6 @@ public abstract class Entidad implements UICapable {
 	}
 
 	public void setDanoBase(int danoBase) {
-		if (danoBase < 0) {
-			throw new IllegalArgumentException("El dano base no puede ser negativo");
-		}
 		this.danoBase = danoBase;
 	}
 
@@ -73,14 +70,7 @@ public abstract class Entidad implements UICapable {
 	}
 
 	public void setVelocidad(int velocidad) {
-		if (velocidad < 0) {
-			throw new IllegalArgumentException("La velocidad no puede ser negativa");
-		}
 		this.velocidad = velocidad;
-	}
-
-	public boolean estaViva() {
-		return vida > 0;
 	}
 
 	public int getX() {
@@ -91,39 +81,11 @@ public abstract class Entidad implements UICapable {
 		return y;
 	}
 
-	public void moverse(int deltaX, int deltaY) {
-		if (!estaViva()) {
-			return;
-		}
-		x += deltaX * velocidad;
-		y += deltaY * velocidad;
+	public void setX(int x) {
+		this.x = x;
 	}
 
-	public void recibirDano(int dano) {
-		if (dano < 0) {
-			throw new IllegalArgumentException("El dano recibido no puede ser negativo");
-		}
-		setVida(vida - dano);
+	public void setY(int y) {
+		this.y = y;
 	}
-
-	public boolean recibirExplosion(Entidad origen, int dano, int radio) {
-		if (origen == null) {
-			throw new IllegalArgumentException("El origen de la explosion es obligatorio");
-		}
-		if (dano <= 0 || radio < 0) {
-			throw new IllegalArgumentException("El dano debe ser positivo y el radio no puede ser negativo");
-		}
-		int distancia = Math.abs(x - origen.x) + Math.abs(y - origen.y);
-		if (!estaViva() || distancia > radio) {
-			return false;
-		}
-		recibirDano(dano);
-		return true;
-	}
-
-	public void desaparecer() {
-		setVida(0);
-	}
-
-	public abstract String comportamiento();
 }

@@ -7,10 +7,10 @@ import py.edu.uc.lp3.domain.minecraft.Creeper;
 import py.edu.uc.lp3.domain.minecraft.Entidad;
 import py.edu.uc.lp3.domain.minecraft.Jugador;
 import py.edu.uc.lp3.domain.minecraft.Zombie;
-import py.edu.uc.lp3.domain.minecraft.exception.EntidadNoEncontradaException;
-import py.edu.uc.lp3.domain.minecraft.exception.EstadoEntidadInvalidoException;
 import py.edu.uc.lp3.repository.EntidadRepository;
 import py.edu.uc.lp3.service.EntidadService;
+import py.edu.uc.lp3.service.exception.EntidadNoEncontradaException;
+import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
 
 @Service
 @Transactional
@@ -50,6 +50,9 @@ public class EntidadServiceImpl implements EntidadService {
 	public Entidad actualizar(Long id, Entidad reemplazo) {
 		validarEstadoInicial(reemplazo);
 		Entidad existente = buscar(id);
+		if (existente.getVida() == 0) {
+			throw new EstadoEntidadInvalidoException("Una entidad muerta no puede volver a modificarse");
+		}
 		if (!existente.getClass().equals(reemplazo.getClass())) {
 			throw new EstadoEntidadInvalidoException("PUT no puede cambiar el tipo de una entidad existente");
 		}
@@ -57,6 +60,8 @@ public class EntidadServiceImpl implements EntidadService {
 		existente.setVida(reemplazo.getVida());
 		existente.setDanoBase(reemplazo.getDanoBase());
 		existente.setVelocidad(reemplazo.getVelocidad());
+		existente.setX(reemplazo.getX());
+		existente.setY(reemplazo.getY());
 		if (existente instanceof Jugador jugador && reemplazo instanceof Jugador jugadorNuevo) {
 			jugador.setArmadura(jugadorNuevo.getArmadura());
 		} else if (existente instanceof Creeper creeper && reemplazo instanceof Creeper creeperNuevo) {
@@ -78,8 +83,18 @@ public class EntidadServiceImpl implements EntidadService {
 		if (entidad.getVida() <= 0) {
 			throw new EstadoEntidadInvalidoException("La vida inicial debe ser mayor que cero");
 		}
+		if (entidad.getVida() > 20) {
+			throw new EstadoEntidadInvalidoException("La vida no puede superar el máximo de 20");
+		}
 		if (entidad.getDanoBase() < 0 || entidad.getVelocidad() < 0) {
-			throw new EstadoEntidadInvalidoException("Dano base y velocidad no pueden ser negativos");
+			throw new EstadoEntidadInvalidoException("Daño base y velocidad no pueden ser negativos");
+		}
+		if (entidad instanceof Jugador jugador && jugador.getArmadura() < 0) {
+			throw new EstadoEntidadInvalidoException("La armadura no puede ser negativa");
+		}
+		if (entidad instanceof Creeper creeper && creeper.getCargaExplosion() < 0) {
+			throw new EstadoEntidadInvalidoException("La carga de explosión no puede ser negativa");
 		}
 	}
+
 }

@@ -7,10 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import py.edu.uc.lp3.domain.minecraft.exception.EntidadNoEncontradaException;
-import py.edu.uc.lp3.domain.minecraft.exception.EstadoEntidadInvalidoException;
-import py.edu.uc.lp3.domain.minecraft.exception.ExplosionNoPermitidaException;
 import py.edu.uc.lp3.rest.dto.ErrorResponse;
+import py.edu.uc.lp3.service.exception.EntidadNoEncontradaException;
+import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
+import py.edu.uc.lp3.service.exception.ExplosionNoPermitidaException;
 
 @RestControllerAdvice
 public class MinecraftExceptionHandler {

@@ -17,27 +17,40 @@ public sealed interface EntidadRequest {
 
 	Entidad aEntidad();
 
-	record JugadorRequest(int vida, int danoBase, int velocidad, int armadura) implements EntidadRequest {
+	record JugadorRequest(int vida, int danoBase, int velocidad, Integer x, Integer y, int armadura) implements EntidadRequest {
 
 		@Override
 		public Entidad aEntidad() {
-			return new Jugador(vida, danoBase, velocidad, armadura);
+			Jugador jugador = new Jugador(vida, danoBase, velocidad, armadura);
+			jugador.setX(coordenada(x));
+			jugador.setY(coordenada(y));
+			return jugador;
 		}
 	}
 
-	record CreeperRequest(int vida, int danoBase, int velocidad, int cargaExplosion) implements EntidadRequest {
+	record CreeperRequest(int vida, int danoBase, int velocidad, Integer x, Integer y, int cargaExplosion) implements EntidadRequest {
 
 		@Override
 		public Entidad aEntidad() {
-			return new Creeper(vida, danoBase, velocidad, cargaExplosion);
+			Creeper creeper = new Creeper(vida, danoBase, velocidad, cargaExplosion);
+			creeper.setX(coordenada(x));
+			creeper.setY(coordenada(y));
+			return creeper;
 		}
 	}
 
-	record ZombieRequest(int vida, int danoBase, int velocidad) implements EntidadRequest {
+	record ZombieRequest(int vida, int danoBase, int velocidad, Integer x, Integer y) implements EntidadRequest {
 
 		@Override
 		public Entidad aEntidad() {
-			return new Zombie(vida, danoBase, velocidad);
+			Zombie zombie = new Zombie(vida, danoBase, velocidad);
+			zombie.setX(coordenada(x));
+			zombie.setY(coordenada(y));
+			return zombie;
 		}
+	}
+
+	private static int coordenada(Integer valor) {
+		return valor == null ? 0 : valor;
 	}
 }

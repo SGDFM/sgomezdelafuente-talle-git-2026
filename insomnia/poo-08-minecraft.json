@@ -79,7 +79,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"vida\": 20,\n  \"danoBase\": 0,\n  \"velocidad\": 2,\n  \"cargaExplosion\": 4\n}"
+        "text": "{\n  \"tipo\": \"CREEPER\",\n  \"vida\": 20,\n  \"danoBase\": 0,\n  \"velocidad\": 2,\n  \"x\": 0,\n  \"y\": 0,\n  \"cargaExplosion\": 4\n}"
       },
       "parameters": [],
       "headers": [{ "name": "Content-Type", "value": "application/json" }],
@@ -105,7 +105,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"vida\": 20,\n  \"danoBase\": 4,\n  \"velocidad\": 3,\n  \"armadura\": 2\n}"
+        "text": "{\n  \"tipo\": \"JUGADOR\",\n  \"vida\": 20,\n  \"danoBase\": 4,\n  \"velocidad\": 3,\n  \"x\": 0,\n  \"y\": 0,\n  \"armadura\": 2\n}"
       },
       "parameters": [],
       "headers": [{ "name": "Content-Type", "value": "application/json" }],
@@ -131,7 +131,7 @@
       "method": "POST",
       "body": {
         "mimeType": "application/json",
-        "text": "{\n  \"tipo\": \"ZOMBIE\",\n  \"vida\": 20,\n  \"danoBase\": 5,\n  \"velocidad\": 1\n}"
+        "text": "{\n  \"tipo\": \"ZOMBIE\",\n  \"vida\": 20,\n  \"danoBase\": 5,\n  \"velocidad\": 1,\n  \"x\": 10,\n  \"y\": 0\n}"
       },
       "parameters": [],
       "headers": [{ "name": "Content-Type", "value": "application/json" }],
@@ -224,7 +224,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades/{{ _.zombie_id }}",
-      "name": "07 - DELETE Zombie",
+      "name": "15 - DELETE Zombie",
       "description": "Ejecutar al final del recorrido feliz",
       "method": "DELETE",
       "body": {},
@@ -247,7 +247,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades/{{ _.zombie_id }}",
-      "name": "07b - GET confirma DELETE",
+      "name": "16 - GET confirma DELETE",
       "description": "Debe responder 404 despues de borrar el Zombie",
       "method": "GET",
       "body": {},
@@ -282,7 +282,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades/ui",
-      "name": "08 - GET protocolo UICapable",
+      "name": "07 - GET protocolo UICapable",
       "description": "Pide describirUI a traves del tipo UICapable",
       "method": "GET",
       "body": {},
@@ -305,7 +305,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/simulaciones/explosion",
-      "name": "09 - POST simulacion exitosa",
+      "name": "08 - POST simulacion exitosa",
       "description": "Modifica y persiste Creeper, Jugador y Zombie",
       "method": "POST",
       "body": {
@@ -331,7 +331,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades",
-      "name": "10 - GET estado posterior",
+      "name": "09 - GET estado posterior",
       "description": "Confirma que el resultado de la simulacion quedo en H2",
       "method": "GET",
       "body": {},
@@ -366,7 +366,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades",
-      "name": "11 - POST ilegal - EstadoEntidadInvalido",
+      "name": "10 - POST ilegal - EstadoEntidadInvalido",
       "description": "La vida negativa se normaliza a cero y el service impide persistirla",
       "method": "POST",
       "body": {
@@ -392,7 +392,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades/999999",
-      "name": "12 - GET inexistente - EntidadNoEncontrada",
+      "name": "11 - GET inexistente - EntidadNoEncontrada",
       "description": "Handler HTTP 404",
       "method": "GET",
       "body": {},
@@ -415,7 +415,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/entidades",
-      "name": "13 - POST Creeper sin carga suficiente",
+      "name": "12 - POST Creeper sin carga suficiente",
       "description": "Copiar el id devuelto en creeper_sin_carga_id",
       "method": "POST",
       "body": {
@@ -441,7 +441,7 @@
       "modified": 1794182400000,
       "created": 1794182400000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/simulaciones/explosion",
-      "name": "14 - POST explosion - ExplosionNoPermitida",
+      "name": "13 - POST explosion - ExplosionNoPermitida",
       "description": "Handler HTTP 409; la transaccion no cambia ningun participante",
       "method": "POST",
       "body": {

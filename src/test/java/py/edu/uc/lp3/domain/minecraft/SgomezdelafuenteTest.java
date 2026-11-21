@@ -7,22 +7,27 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
-import py.edu.uc.lp3.domain.minecraft.exception.ExplosionNoPermitidaException;
+import py.edu.uc.lp3.service.JuegoService;
+import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
+import py.edu.uc.lp3.service.exception.ExplosionNoPermitidaException;
+import py.edu.uc.lp3.service.impl.JuegoServiceImpl;
 
 class SgomezdelafuenteTest {
 
+	private final JuegoService juegoService = new JuegoServiceImpl();
+
 	@Test
-	void entidadMantieneVidaValida() {
+	void entidadSoloAlmacenaEstadoYElServicioLoValida() {
 		Entidad entidad = new Jugador(10, 2, 1, 0);
 
 		entidad.setVida(-10);
 
-		assertEquals(0, entidad.getVida());
-		assertFalse(entidad.estaViva());
+		assertEquals(-10, entidad.getVida());
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.validarEstado(entidad));
 	}
 
 	@Test
-	void entidadesSeTratanUniformemente() {
+	void servicioTrataLasEntidadesUniformemente() {
 		List<Entidad> entidades = List.of(
 				new Jugador(20, 4, 2, 1),
 				new Zombie(20, 5, 1),
@@ -32,40 +37,38 @@ class SgomezdelafuenteTest {
 				new Aldeano(20, 0, 1, true));
 
 		for (Entidad entidad : entidades) {
-			entidad.moverse(1, 1);
-			entidad.recibirDano(3);
-			entidad.desaparecer();
+			juegoService.mover(entidad, 1, 1);
+			juegoService.recibirDano(entidad, 3);
+			entidad.setVida(0);
 
 			assertEquals(0, entidad.getVida());
-			assertFalse(entidad.estaViva());
+			assertFalse(juegoService.estaViva(entidad));
 		}
 	}
 
 	@Test
-	void entidadMuertaNoSeMueve() {
-		Entidad entidad = new Zombie(10, 2, 3);
+	void servicioNoMueveUnaEntidadSinVida() {
+		Entidad entidad = new Zombie(0, 2, 3);
 
-		entidad.desaparecer();
-		entidad.moverse(1, 1);
+		juegoService.mover(entidad, 1, 1);
 
 		assertEquals(0, entidad.getX());
 		assertEquals(0, entidad.getY());
 	}
 
 	@Test
-	void noAceptaAtributosNegativos() {
-		Entidad entidad = new Cerdo(10, 2, 1, true);
+	void servicioRechazaAtributosNegativos() {
+		Entidad entidad = new Cerdo(10, -1, -1, true);
 
-		assertThrows(IllegalArgumentException.class, () -> entidad.setDanoBase(-1));
-		assertThrows(IllegalArgumentException.class, () -> entidad.setVelocidad(-1));
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.validarEstado(entidad));
 	}
 
 	@Test
-	void jugadorLimitaVidaYReduceDanioConArmadura() {
-		Jugador jugador = new Jugador(30, 4, 2, 3);
+	void servicioReduceDanoConArmaduraYLimitaCuracion() {
+		Jugador jugador = new Jugador(20, 4, 2, 3);
 
-		jugador.recibirDano(8);
-		jugador.curar(100);
+		juegoService.recibirDano(jugador, 8);
+		juegoService.curar(jugador, 100);
 
 		assertEquals(20, jugador.getVida());
 		assertEquals(3, jugador.getArmadura());
@@ -83,33 +86,34 @@ class SgomezdelafuenteTest {
 	}
 
 	@Test
-	void zombieAtacaJugadorConDanoBase() {
+	void servicioAplicaAtaqueDeZombie() {
 		Jugador jugador = new Jugador(20, 4, 2, 1);
 		Zombie zombie = new Zombie(20, 5, 1);
 
-		zombie.atacar(jugador);
+		juegoService.atacar(zombie, jugador);
 
 		assertEquals(16, jugador.getVida());
 	}
 
 	@Test
-	void zombiePequenoCalculaVelocidadTotal() {
+	void servicioCalculaVelocidadTotal() {
 		ZombiePequeno zombiePequeno = new ZombiePequeno(20, 3, 2, 4);
 
-		assertEquals(6, zombiePequeno.getVelocidadTotal());
-		assertThrows(IllegalArgumentException.class, () -> zombiePequeno.setVelocidadAumentada(-1));
+		assertEquals(6, juegoService.velocidadTotal(zombiePequeno));
+		zombiePequeno.setVelocidadAumentada(-1);
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.velocidadTotal(zombiePequeno));
 	}
 
 	@Test
-	void creeperAumentaCargaYExplota() {
+	void servicioAumentaCargaYDetonaCreeper() {
 		Creeper creeper = new Creeper(20, 0, 2, 1);
 
-		creeper.aumentarCarga(4);
-		creeper.explotar();
+		juegoService.aumentarCarga(creeper, 4);
+		juegoService.detonar(creeper);
 
 		assertEquals(0, creeper.getVida());
 		assertEquals(0, creeper.getCargaExplosion());
-		assertFalse(creeper.estaViva());
+		assertFalse(juegoService.estaViva(creeper));
 	}
 
 	@Test
@@ -124,17 +128,17 @@ class SgomezdelafuenteTest {
 	}
 
 	@Test
-	void comportamientoEsPolimorficoDesdeTipoPadre() {
+	void servicioDescribeEntidadesDesdeElTipoPadre() {
 		Entidad creeper = new Creeper(20, 0, 2, 3);
 		Entidad aldeano = new Aldeano(20, 0, 1, true);
 
-		assertTrue(creeper.comportamiento().contains("creeper"));
-		assertTrue(aldeano.comportamiento().contains("aldeano"));
+		assertTrue(juegoService.comportamiento(creeper).contains("Creeper"));
+		assertTrue(juegoService.comportamiento(aldeano).contains("aldeano"));
 	}
 
 	@Test
-	void elementosDibujablesCompartenUICapable() {
-		List<UICapable> elementos = List.of(
+	void servicioImplementaElProtocoloUICapable() {
+		List<Entidad> elementos = List.of(
 				new Jugador(),
 				new Zombie(20, 5, 1),
 				new ZombiePequeno(20, 3, 2, 4),
@@ -144,31 +148,31 @@ class SgomezdelafuenteTest {
 				new Aldeano(20, 0, 1, true));
 
 		assertEquals(7, elementos.size());
-		assertTrue(elementos.stream().allMatch(elemento -> elemento.describirUI().contains("imagen=")));
+		assertTrue(elementos.stream().allMatch(elemento -> juegoService.describirUI(elemento).contains("imagen=")));
 	}
 
 	@Test
-	void explosionRespetaCargaRadioYArmadura() {
+	void servicioRespetaCargaRadioYArmadura() {
 		Creeper creeper = new Creeper(20, 0, 2, 3);
 		Jugador jugador = new Jugador(20, 4, 3, 2);
 		Zombie zombieLejano = new Zombie(20, 5, 2);
-		zombieLejano.moverse(10, 0);
+		juegoService.mover(zombieLejano, 10, 0);
 
-		int dano = creeper.detonar();
-		assertTrue(jugador.recibirExplosion(creeper, dano, 5));
-		assertFalse(zombieLejano.recibirExplosion(creeper, dano, 5));
+		int dano = juegoService.detonar(creeper);
+		assertTrue(juegoService.recibirExplosion(jugador, creeper, dano, 5));
+		assertFalse(juegoService.recibirExplosion(zombieLejano, creeper, dano, 5));
 
 		assertEquals(10, jugador.getVida());
 		assertEquals(20, zombieLejano.getVida());
-		assertFalse(creeper.estaViva());
+		assertFalse(juegoService.estaViva(creeper));
 	}
 
 	@Test
-	void explotarNoEvitaLaReglaDeCargaMinima() {
+	void servicioAplicaLaCargaMinima() {
 		Creeper creeper = new Creeper(1);
 
-		assertThrows(ExplosionNoPermitidaException.class, creeper::explotar);
-		assertTrue(creeper.estaViva());
+		assertThrows(ExplosionNoPermitidaException.class, () -> juegoService.detonar(creeper));
+		assertTrue(juegoService.estaViva(creeper));
 		assertEquals(1, creeper.getCargaExplosion());
 	}
 

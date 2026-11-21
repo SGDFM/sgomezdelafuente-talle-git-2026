@@ -1,4 +1,4 @@
-package py.edu.uc.lp3.domain.minecraft.exception;
+package py.edu.uc.lp3.service.exception;
 
 public abstract class MinecraftException extends RuntimeException {
 

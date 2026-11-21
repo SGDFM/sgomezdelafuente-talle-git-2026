@@ -14,24 +14,6 @@ public class ZombiePequeno extends Zombie {
 	}
 
 	public void setVelocidadAumentada(int velocidadAumentada) {
-		if (velocidadAumentada < 0) {
-			throw new IllegalArgumentException("La velocidad aumentada no puede ser negativa");
-		}
 		this.velocidadAumentada = velocidadAumentada;
-	}
-
-	public int getVelocidadTotal() {
-		return getVelocidad() + velocidadAumentada;
-	}
-
-	@Override
-	public String comportamiento() {
-		return "El zombie pequeno ataca como zombie y se mueve con velocidad total " + getVelocidadTotal();
-	}
-
-	@Override
-	public String describirUI() {
-		return "imagen=zombie-pequeno.png, posicion=(" + getX() + "," + getY()
-				+ "), sonido=gemido-agudo, velocidad=" + getVelocidadTotal();
 	}
 }

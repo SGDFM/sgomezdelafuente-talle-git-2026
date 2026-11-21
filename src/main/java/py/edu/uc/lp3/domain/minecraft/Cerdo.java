@@ -17,14 +17,4 @@ public class Cerdo extends Mob {
 		this.montable = montable;
 	}
 
-	@Override
-	public String comportamiento() {
-		return montable ? "El cerdo no es hostil y puede ser montado" : "El cerdo no es hostil y no puede ser montado";
-	}
-
-	@Override
-	public String describirUI() {
-		return "imagen=cerdo.png, posicion=(" + getX() + "," + getY()
-				+ "), sonido=grunido, velocidad=" + getVelocidad();
-	}
 }

@@ -20,7 +20,7 @@ public record EntidadResponse(
 		Integer cargaExplosion,
 		String comportamiento) {
 
-	public static EntidadResponse desde(Entidad entidad) {
+	public static EntidadResponse desde(Entidad entidad, String comportamiento) {
 		Boolean hostil = entidad instanceof Mob mob ? mob.isHostil() : null;
 		Integer armadura = entidad instanceof Jugador jugador ? jugador.getArmadura() : null;
 		Integer carga = entidad instanceof Creeper creeper ? creeper.getCargaExplosion() : null;
@@ -35,6 +35,6 @@ public record EntidadResponse(
 				hostil,
 				armadura,
 				carga,
-				entidad.comportamiento());
+				comportamiento);
 	}
 }

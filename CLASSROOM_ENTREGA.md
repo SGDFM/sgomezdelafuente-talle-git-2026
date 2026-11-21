@@ -1,16 +1,16 @@
 # Entrega Classroom - POO-08 Minecraft
 
-Alumno: Sebastian Gomez de la Fuente
+Alumno: Sebastián Gómez de la Fuente
 
 Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solucion POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/9493e2f4ea2c9bd9f48b96278462901e9571da2a
+Commit de solución POO-08: se agrega en el siguiente commit documental.
 
 ## Objetivo
 
-Publicar un servicio HTTP Spring Boot con arquitectura de tres capas que persiste una familia polimorfica de Minecraft en H2. La aplicacion incluye CRUD REST, validaciones de negocio, una interfaz de dominio, una simulacion de explosiones y una jerarquia de excepciones con respuestas HTTP diferenciadas.
+Publicar un servicio HTTP Spring Boot con arquitectura de tres capas que persiste una familia polimórfica de Minecraft en H2. La aplicación incluye CRUD REST, validaciones de negocio, una interfaz de servicio, una simulación de explosiones y una jerarquía de excepciones con respuestas HTTP diferenciadas.
 
 ## Clases persistidas
 
@@ -26,7 +26,7 @@ Las tres pertenecen a la familia de `Entidad`. La estrategia JPA es `SINGLE_TABL
 EntidadController / SimulacionController
                  |
                  v
-EntidadService / ExplosionService
+EntidadService / JuegoService / ExplosionService
                  |
                  v
 EntidadRepository
@@ -35,7 +35,7 @@ EntidadRepository
                 H2
 ```
 
-Los controllers traducen HTTP. Los services validan y coordinan transacciones. El repositorio traduce entidades a filas. Las reglas de juego permanecen en el dominio.
+Los controladores traducen HTTP. Los servicios validan, ejecutan las reglas y coordinan transacciones. El repositorio traduce entidades a filas. Las entidades JPA conservan únicamente estado y no lanzan excepciones.
 
 ## URLs
 
@@ -53,23 +53,23 @@ POST   /minecraft/sgomezdelafuente/simulaciones/explosion
 ## Invariantes
 
 - La vida inicial debe ser mayor que cero.
-- Dano base, velocidad, armadura y carga de explosion no pueden ser negativos.
+- Daño base, velocidad, armadura y carga de explosión no pueden ser negativos.
 - Solo `JUGADOR`, `CREEPER` y `ZOMBIE` entran en el CRUD persistido.
 - Un PUT no puede cambiar el subtipo de una entidad existente.
 - El Creeper debe estar vivo y tener al menos tres puntos de carga para detonar.
-- El dano de explosion solo alcanza entidades vivas dentro del radio indicado.
-- Un POST invalido no agrega una fila a H2.
+- El daño de explosión solo alcanza entidades vivas dentro del radio indicado.
+- Un POST inválido no agrega una fila a H2.
 
-## Interface De Dominio
+## Interfaz de servicio
 
-`UICapable` declara `String describirUI()`. Las entidades concretas responden con imagen, posicion, sonido y velocidad como texto. El endpoint `/entidades/ui` solicita el mensaje usando el tipo de la interfaz y responde JSON.
+`UICapable` declara `String describirUI(Entidad entidad)`. `JuegoService` extiende esa interfaz y `JuegoServiceImpl` produce como texto la imagen, la posición, el sonido y la velocidad. El endpoint `/entidades/ui` solicita el mensaje mediante el contrato `UICapable` heredado por `JuegoService` y responde con un JSON, sin colocar presentación en las entidades.
 
-## Reglas De La Simulacion
+## Reglas de la simulación
 
-1. Un Creeper vivo con carga minima puede detonar; el dano es cuatro veces su carga.
-2. Jugador y Zombie reciben ese dano solo dentro del radio. El Jugador descuenta armadura mediante su sobreescritura de `recibirDano()`.
+1. Un Creeper vivo con carga mínima puede detonar; el daño es cuatro veces su carga.
+2. El Jugador y el Zombie reciben ese daño solo dentro del radio; el servicio reduce el daño del Jugador según su armadura.
 
-El Creeper desaparece y los tres participantes quedan actualizados en H2 dentro de una sola transaccion.
+El Creeper desaparece y los tres participantes quedan actualizados en H2 dentro de una sola transacción.
 
 ## Excepciones
 
@@ -79,7 +79,7 @@ EstadoEntidadInvalidoException -> 400
 ExplosionNoPermitidaException  -> 409
 ```
 
-Cada clase hereda de `MinecraftException` y tiene un handler HTTP propio.
+Cada clase hereda de `MinecraftException` y tiene un método manejador HTTP propio.
 
 ## H2
 
@@ -98,7 +98,7 @@ Consola:
 http://localhost:8080/h2-console
 ```
 
-## Como Probar
+## Cómo probar
 
 ```bash
 ./mvnw test
@@ -118,17 +118,17 @@ Recorrido recomendado:
 3. Listar y buscar los recursos.
 4. Actualizar el Creeper y comprobar el cambio con GET.
 5. Consultar el endpoint de `UICapable`.
-6. Ejecutar la simulacion de explosion.
+6. Ejecutar la simulación de explosión.
 7. Hacer otro GET para verificar el estado persistido.
-8. Ejecutar POST invalido, ID inexistente y explosion sin carga.
+8. Ejecutar POST inválido, ID inexistente y explosión sin carga.
 9. Borrar un recurso y verificar el `404` posterior.
 
-## Evidencias Esperadas
+## Evidencias esperadas
 
 - POST responde `201` y un `id` generado.
 - GET lista datos recuperados desde H2.
 - PUT conserva el cambio en un GET posterior.
 - DELETE responde `204`.
-- La simulacion modifica las tres entidades y el cambio permanece.
-- Cada excepcion devuelve JSON con tipo y codigo diferente.
+- La simulación modifica las tres entidades y el cambio permanece.
+- Cada excepción devuelve un JSON con un tipo y un código diferentes.
 - La tabla `ENTIDADES` puede verse desde la consola H2.

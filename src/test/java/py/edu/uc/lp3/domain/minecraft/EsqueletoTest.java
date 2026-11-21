@@ -6,27 +6,32 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+import py.edu.uc.lp3.service.JuegoService;
+import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
+import py.edu.uc.lp3.service.impl.JuegoServiceImpl;
 
 class EsqueletoTest {
+
+	private final JuegoService juegoService = new JuegoServiceImpl();
 
 	@Test
 	void esqueletoEsHostilYSeTrataComoEntidad() {
 		Entidad esqueleto = new Esqueleto(20, 5, 2, 3);
 
 		assertTrue(((Esqueleto) esqueleto).isHostil());
-		assertTrue(esqueleto.comportamiento().contains("esqueleto"));
+		assertTrue(juegoService.comportamiento(esqueleto).contains("esqueleto"));
 	}
 
 	@Test
-	void esqueletoDisparaYConsumeFlechas() {
+	void servicioDisparaYConsumeFlechas() {
 		Jugador jugador = new Jugador(20, 4, 2, 1);
 		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 3);
 
-		esqueleto.disparar(jugador);
+		juegoService.disparar(esqueleto, jugador);
 
 		assertEquals(16, jugador.getVida());
 		assertEquals(2, esqueleto.getFlechas());
-		assertTrue(jugador.estaViva());
+		assertTrue(juegoService.estaViva(jugador));
 	}
 
 	@Test
@@ -36,60 +41,58 @@ class EsqueletoTest {
 
 		assertEquals(5, porDefecto.getFlechas());
 		assertEquals(8, conFlechas.getFlechas());
-		assertTrue(porDefecto.estaViva());
+		assertTrue(juegoService.estaViva(porDefecto));
 	}
 
 	@Test
-	void dispararEstaSobrecargadoPorDistancia() {
+	void servicioSobrecargaDisparoPorDistancia() {
 		Jugador jugador = new Jugador(20, 4, 2, 1);
 		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 2);
 
-		esqueleto.disparar(jugador, 15);
+		juegoService.disparar(esqueleto, jugador, 15);
 
 		assertEquals(18, jugador.getVida());
 		assertEquals(1, esqueleto.getFlechas());
-		assertThrows(IllegalArgumentException.class, () -> esqueleto.disparar(jugador, 0));
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.disparar(esqueleto, jugador, 0));
 	}
 
 	@Test
-	void esqueletoSinFlechasNoDispara() {
+	void servicioRechazaDisparoSinFlechas() {
 		Jugador jugador = new Jugador(20, 4, 2, 1);
 		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 0);
 
-		assertThrows(IllegalStateException.class, () -> esqueleto.disparar(jugador));
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.disparar(esqueleto, jugador));
 		assertEquals(20, jugador.getVida());
 	}
 
 	@Test
-	void esqueletoRechazaFlechasNegativas() {
-		assertThrows(IllegalArgumentException.class, () -> new Esqueleto(20, 5, 2, -1));
+	void servicioRechazaFlechasNegativas() {
+		Esqueleto esqueleto = new Esqueleto(20, 5, 2, -1);
 
-		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 1);
-		assertThrows(IllegalArgumentException.class, () -> esqueleto.setFlechas(-1));
-		assertEquals(1, esqueleto.getFlechas());
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.validarEstado(esqueleto));
 	}
 
 	@Test
-	void esqueletoRecargaFlechasSoloConPositivos() {
+	void servicioRecargaSoloConValoresPositivos() {
 		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 2);
 
-		esqueleto.recargar(4);
+		juegoService.recargar(esqueleto, 4);
 
 		assertEquals(6, esqueleto.getFlechas());
-		assertThrows(IllegalArgumentException.class, () -> esqueleto.recargar(0));
+		assertThrows(EstadoEntidadInvalidoException.class, () -> juegoService.recargar(esqueleto, 0));
 		assertEquals(6, esqueleto.getFlechas());
 	}
 
 	@Test
-	void esqueletoPuedeMatarAlJugadorDisparando() {
+	void servicioPuedeDejarAlJugadorSinVida() {
 		Jugador jugador = new Jugador(20, 4, 2, 1);
 		Esqueleto esqueleto = new Esqueleto(20, 5, 2, 5);
 
 		for (int i = 0; i < 5; i++) {
-			esqueleto.disparar(jugador);
+			juegoService.disparar(esqueleto, jugador);
 		}
 
 		assertEquals(0, jugador.getVida());
-		assertFalse(jugador.estaViva());
+		assertFalse(juegoService.estaViva(jugador));
 	}
 }

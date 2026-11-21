@@ -16,37 +16,40 @@ import py.edu.uc.lp3.rest.dto.EntidadRequest;
 import py.edu.uc.lp3.rest.dto.EntidadResponse;
 import py.edu.uc.lp3.rest.dto.UIResponse;
 import py.edu.uc.lp3.service.EntidadService;
+import py.edu.uc.lp3.service.JuegoService;
 
 @RestController
 @RequestMapping("/minecraft/sgomezdelafuente/entidades")
 public class EntidadController {
 
 	private final EntidadService service;
+	private final JuegoService juegoService;
 
-	public EntidadController(EntidadService service) {
+	public EntidadController(EntidadService service, JuegoService juegoService) {
 		this.service = service;
+		this.juegoService = juegoService;
 	}
 
 	@PostMapping
 	public ResponseEntity<EntidadResponse> crear(@RequestBody EntidadRequest request) {
 		Entidad creada = service.crear(request.aEntidad());
 		return ResponseEntity.created(URI.create("/minecraft/sgomezdelafuente/entidades/" + creada.getId()))
-				.body(EntidadResponse.desde(creada));
+				.body(respuesta(creada));
 	}
 
 	@GetMapping
 	public List<EntidadResponse> listar() {
-		return service.listar().stream().map(EntidadResponse::desde).toList();
+		return service.listar().stream().map(this::respuesta).toList();
 	}
 
 	@GetMapping("/{id}")
 	public EntidadResponse buscar(@PathVariable Long id) {
-		return EntidadResponse.desde(service.buscar(id));
+		return respuesta(service.buscar(id));
 	}
 
 	@PutMapping("/{id}")
 	public EntidadResponse actualizar(@PathVariable Long id, @RequestBody EntidadRequest request) {
-		return EntidadResponse.desde(service.actualizar(id, request.aEntidad()));
+		return respuesta(service.actualizar(id, request.aEntidad()));
 	}
 
 	@DeleteMapping("/{id}")
@@ -57,6 +60,12 @@ public class EntidadController {
 
 	@GetMapping("/ui")
 	public List<UIResponse> describirUI() {
-		return service.listarVivas().stream().map(UIResponse::desde).toList();
+		return service.listarVivas().stream()
+				.map(entidad -> UIResponse.desde(entidad, juegoService.describirUI(entidad)))
+				.toList();
+	}
+
+	private EntidadResponse respuesta(Entidad entidad) {
+		return EntidadResponse.desde(entidad, juegoService.comportamiento(entidad));
 	}
 }

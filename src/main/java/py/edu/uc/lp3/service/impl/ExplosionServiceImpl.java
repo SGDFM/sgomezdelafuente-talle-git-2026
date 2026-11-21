@@ -7,30 +7,36 @@ import py.edu.uc.lp3.domain.minecraft.Creeper;
 import py.edu.uc.lp3.domain.minecraft.Entidad;
 import py.edu.uc.lp3.domain.minecraft.Jugador;
 import py.edu.uc.lp3.domain.minecraft.Zombie;
-import py.edu.uc.lp3.domain.minecraft.exception.EntidadNoEncontradaException;
-import py.edu.uc.lp3.domain.minecraft.exception.EstadoEntidadInvalidoException;
 import py.edu.uc.lp3.repository.EntidadRepository;
 import py.edu.uc.lp3.service.ExplosionService;
+import py.edu.uc.lp3.service.JuegoService;
+import py.edu.uc.lp3.service.exception.EntidadNoEncontradaException;
+import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
 
 @Service
 @Transactional
 public class ExplosionServiceImpl implements ExplosionService {
 
 	private final EntidadRepository repository;
+	private final JuegoService juegoService;
 
-	public ExplosionServiceImpl(EntidadRepository repository) {
+	public ExplosionServiceImpl(EntidadRepository repository, JuegoService juegoService) {
 		this.repository = repository;
+		this.juegoService = juegoService;
 	}
 
 	@Override
 	public ResultadoExplosion simular(Long creeperId, Long jugadorId, Long zombieId, int radio) {
+		if (radio < 0) {
+			throw new EstadoEntidadInvalidoException("El radio no puede ser negativo");
+		}
 		Creeper creeper = buscarComo(creeperId, Creeper.class);
 		Jugador jugador = buscarComo(jugadorId, Jugador.class);
 		Zombie zombie = buscarComo(zombieId, Zombie.class);
 
-		int dano = creeper.detonar();
-		boolean jugadorAfectado = jugador.recibirExplosion(creeper, dano, radio);
-		boolean zombieAfectado = zombie.recibirExplosion(creeper, dano, radio);
+		int dano = juegoService.detonar(creeper);
+		boolean jugadorAfectado = juegoService.recibirExplosion(jugador, creeper, dano, radio);
+		boolean zombieAfectado = juegoService.recibirExplosion(zombie, creeper, dano, radio);
 		repository.saveAll(List.of(creeper, jugador, zombie));
 
 		return new ResultadoExplosion(dano, jugadorAfectado, zombieAfectado, creeper, jugador, zombie);

@@ -11,6 +11,6 @@ Comando:
 ./mvnw spring-boot:run
 ```
 
-La API levanta por defecto en `http://localhost:8080`.
+La API se inicia y queda disponible de forma predeterminada en `http://localhost:8080`.
 
-Para detener el servidor, usar `Ctrl+C` en la terminal donde esta corriendo Maven.
+Para detener el servidor, se debe usar `Ctrl+C` en la terminal donde está ejecutándose Maven.

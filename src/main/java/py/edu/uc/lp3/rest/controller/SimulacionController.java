@@ -7,20 +7,24 @@ import org.springframework.web.bind.annotation.RestController;
 import py.edu.uc.lp3.rest.dto.ExplosionRequest;
 import py.edu.uc.lp3.rest.dto.ExplosionResponse;
 import py.edu.uc.lp3.service.ExplosionService;
+import py.edu.uc.lp3.service.JuegoService;
 
 @RestController
 @RequestMapping("/minecraft/sgomezdelafuente/simulaciones")
 public class SimulacionController {
 
 	private final ExplosionService service;
+	private final JuegoService juegoService;
 
-	public SimulacionController(ExplosionService service) {
+	public SimulacionController(ExplosionService service, JuegoService juegoService) {
 		this.service = service;
+		this.juegoService = juegoService;
 	}
 
 	@PostMapping("/explosion")
 	public ExplosionResponse simularExplosion(@RequestBody ExplosionRequest request) {
 		return ExplosionResponse.desde(
-				service.simular(request.creeperId(), request.jugadorId(), request.zombieId(), request.radio()));
+				service.simular(request.creeperId(), request.jugadorId(), request.zombieId(), request.radio()),
+				juegoService);
 	}
 }
