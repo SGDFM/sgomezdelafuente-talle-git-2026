@@ -6,7 +6,7 @@ Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solución POO-09: se agrega en el siguiente commit documental.
+Commit de solución POO-09: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/c5e3a8a8e7913d0cc4d34f8cceb228faa2205920
 
 ## Objetivo
 
