@@ -4,7 +4,7 @@ Este archivo resume las especificaciones de integración aplicadas al dominio Mi
 
 Commit de solución POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/58861f5135afe589ed34f2985874d3ef0c0087ef
 
-Commit de solución POO-09 corregida: pendiente de commit local; no publicado.
+Commit de solución POO-09 corregida: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/789fdc2f649e2faa25e52e5c08ae78d132c45a4f
 
 ## Alcance
 

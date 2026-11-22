@@ -6,7 +6,7 @@ Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solución POO-09 corregida: pendiente de commit local; no publicado.
+Commit de solución POO-09 corregida: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/789fdc2f649e2faa25e52e5c08ae78d132c45a4f
 
 ## Objetivo
 
