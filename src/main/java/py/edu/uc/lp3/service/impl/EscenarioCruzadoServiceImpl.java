@@ -41,7 +41,7 @@ public class EscenarioCruzadoServiceImpl implements EscenarioCruzadoService {
 		String respuestaRuth = ruthClient.validar(request.ruth());
 		LOGGER.debug("A2 aceptó el escenario; se consulta A3");
 		String respuestaMatias = matiasClient.validar(request.matias());
-		LOGGER.debug("A3 aceptó el escenario; se persiste la jugada en H2");
+		LOGGER.debug("A3 aceptó el escenario; A1 persiste la jugada en H2");
 
 		JugadaCruzada jugada = new JugadaCruzada(
 				Instant.now(),
@@ -65,14 +65,26 @@ public class EscenarioCruzadoServiceImpl implements EscenarioCruzadoService {
 		if (request == null || request.descripcion() == null || request.descripcion().isBlank()) {
 			throw new EstadoEntidadInvalidoException("La descripción del escenario es obligatoria");
 		}
-		if (request.ruth() == null || request.ruth().creeperId() == null) {
-			throw new EstadoEntidadInvalidoException("El creeperId de Ruth es obligatorio");
+		if (request.ruth() == null || request.ruth().creeperId() == null || request.ruth().creeperId() <= 0) {
+			throw new EstadoEntidadInvalidoException("El creeperId de Ruth debe ser positivo");
 		}
-		if (request.matias() == null || request.matias().creeperId() == null) {
-			throw new EstadoEntidadInvalidoException("El creeperId de Matías es obligatorio");
+		if (request.matias() == null || request.matias().creeperId() == null || request.matias().creeperId() <= 0) {
+			throw new EstadoEntidadInvalidoException("El creeperId de Matías debe ser positivo");
 		}
 		if (request.matias().victimas() == null || request.matias().victimas().isEmpty()) {
 			throw new EstadoEntidadInvalidoException("Matías necesita al menos una víctima con distancia");
+		}
+		if (request.matias().cargado() == null || request.matias().encendido() == null) {
+			throw new EstadoEntidadInvalidoException("Los estados cargado y encendido de Matías son obligatorios");
+		}
+		boolean victimaInvalida = request.matias().victimas().stream().anyMatch(victima -> victima == null
+				|| victima.hostilId() == null
+				|| victima.hostilId() <= 0
+				|| victima.distancia() == null
+				|| !Double.isFinite(victima.distancia())
+				|| victima.distancia() < 0);
+		if (victimaInvalida) {
+			throw new EstadoEntidadInvalidoException("Cada víctima de Matías necesita un ID positivo y distancia válida");
 		}
 	}
 }

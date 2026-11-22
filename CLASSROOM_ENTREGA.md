@@ -6,11 +6,11 @@ Usuario GitHub: SGDFM
 
 Repositorio: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026
 
-Commit de solución POO-09: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/c5e3a8a8e7913d0cc4d34f8cceb228faa2205920
+Commit de solución POO-09 corregida: pendiente de commit local; no publicado.
 
 ## Objetivo
 
-Publicar la API propia mediante OpenAPI y Swagger UI, consumir con `WebClient` las APIs REST de dos compañeros y resolver un escenario coordinado. A1 persiste la jugada en su H2 únicamente cuando A2 y A3 responden exitosamente.
+Publicar la API propia mediante OpenAPI y Swagger UI, consumir con `WebClient` las APIs REST de dos compañeros y resolver un escenario coordinado. En esta entrega Sebastián ocupa el rol A1 y persiste la jugada en su H2 únicamente cuando A2 y A3 responden exitosamente.
 
 ## Integrantes y responsabilidades
 
@@ -20,7 +20,7 @@ Publicar la API propia mediante OpenAPI y Swagger UI, consumir con `WebClient` l
 | A2 | Ruth Santacruz | https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026 | Explosión y reacción en cadena. |
 | A3 | Matías Duarte | https://github.com/Cemelele/mfdc-taller-git-2026 | Radio, víctimas y ciclo de vida del Creeper. |
 
-Los repositorios A2 y A3 no publicaban documentos OpenAPI al momento de la implementación. Los adaptadores se construyeron contra sus contratos REST POO-08 visibles y permiten cambiar URL y ruta mediante configuración.
+Ruth publica POO-09 y OpenAPI en `main`, commit `fd6aebe`. Matías mantiene su avance POO-09 y OpenAPI en `feature/RESTClient`, commit `f3d717a`, todavía sin fusionar a `main`; el endpoint de explosión consumido por A1 sí está disponible en su rama principal. Los adaptadores permiten cambiar URL y ruta mediante configuración.
 
 ## Contrato propio
 
@@ -61,13 +61,13 @@ MATIAS_EXPLOSION_PATH
 Iniciar A2, A3 y A1 en puertos diferentes:
 
 ```bash
-# A2
+# A2 Ruth
 SERVER_PORT=8081 ./mvnw spring-boot:run
 
-# A3
+# A3 Matías
 SERVER_PORT=8082 ./mvnw spring-boot:run
 
-# A1
+# A1 Sebastián
 ./mvnw spring-boot:run
 ```
 
@@ -98,9 +98,9 @@ A2 y A3 deben tener previamente Creepers y víctimas válidos en sus bases. Los 
 Secuencia:
 
 1. A1 valida el pedido.
-2. A1 consulta a Ruth mediante `WebClient`.
-3. Si Ruth acepta, A1 consulta a Matías.
-4. Si Matías acepta, `JugadaCruzadaRepository` inserta la jugada en H2.
+2. A1 consulta a Ruth (A2) mediante `WebClient`.
+3. Si Ruth acepta, A1 consulta a Matías (A3).
+4. Si Matías acepta, `JugadaCruzadaRepository` inserta la jugada en la H2 de A1.
 5. A1 responde `201` con el ID generado.
 
 ## Rechazos y persistencia
@@ -109,9 +109,11 @@ Un error remoto se convierte en `IntegracionErrorResponse`, que conserva el esta
 
 La garantía transaccional corresponde a la H2 de A1. No hay una transacción distribuida que pueda revertir un efecto ya realizado dentro de A2 antes de un eventual rechazo de A3.
 
+La interoperabilidad fue comprobada levantando simultáneamente A2 `fd6aebe` en `8081`, A3 `e24255e` en `8082` y A1 en `8080`, con bases H2 en memoria. El camino feliz respondió `201`; los rechazos reales de A2 y A3 respondieron `422`, identificaron al compañero y mantuvieron una sola fila aceptada en A1. Al detener A2, A1 respondió `502`, identificó a Ruth y tampoco agregó una fila.
+
 ## Logging
 
-Log4j2 conserva el nivel raíz en `INFO` y habilita `DEBUG` para los clientes de integración y `EscenarioCruzadoServiceImpl`. Las trazas muestran inicio, compañero consultado, estado y cuerpo remoto, aceptación y persistencia local.
+Log4j2 conserva el nivel raíz en `INFO` y habilita `DEBUG` para los clientes de integración y `EscenarioCruzadoServiceImpl`. Las trazas muestran inicio, compañero consultado, estado y cuerpo remoto, aceptación y persistencia local. Los clientes limitan la conexión a 3 segundos y la respuesta a 5 segundos.
 
 ## Insomnia
 
@@ -125,8 +127,8 @@ La colección contiene:
 
 1. Consulta del documento OpenAPI.
 2. Escenario aceptado por A2 y A3.
-3. Rechazo de Ruth con un Creeper inexistente.
-4. Rechazo de Matías con un Creeper inexistente.
+3. Rechazo de Ruth (A2) con un Creeper inexistente.
+4. Rechazo de Matías (A3) con un Creeper inexistente.
 5. GET de jugadas aceptadas y persistidas.
 
 Antes de ejecutar se deben actualizar los IDs del entorno con registros reales de A2 y A3. Cada explosión puede cambiar el estado remoto; para repetir una evidencia se deben preparar nuevos datos.
@@ -137,10 +139,10 @@ Antes de ejecutar se deben actualizar los IDs del entorno con registros reales d
 flowchart LR
     Cliente --> Controller[EscenarioCruzadoController]
     Controller --> Service[EscenarioCruzadoServiceImpl]
-    Service --> RuthClient[WebClient Ruth]
     Service --> MatiasClient[WebClient Matías]
-    RuthClient --> A2[API Ruth]
-    MatiasClient --> A3[API Matías]
+    Service --> RuthClient[WebClient Ruth]
+    RuthClient --> A2[API A2 Ruth]
+    MatiasClient --> A3[API A3 Matías]
     Service --> Repository[JugadaCruzadaRepository]
     Repository --> H2[(H2 A1)]
 ```
@@ -167,4 +169,4 @@ sequenceDiagram
 ./mvnw test
 ```
 
-Resultado: 35 pruebas, 0 fallos y 0 errores. POO-09 verifica el camino feliz, los rechazos de A2 y A3, la indisponibilidad `502`, la ausencia de persistencia ante errores, `/v3/api-docs` y la redirección de Swagger UI.
+Resultado: 52 pruebas, 0 fallos y 0 errores. Además del camino feliz, OpenAPI y los rechazos A2/A3, se prueban 15 entradas adversariales de Creeper, overflow aritmético, posición conservada, tipos incorrectos, IDs inválidos, carga insuficiente, segunda detonación y ausencia de persistencia parcial.

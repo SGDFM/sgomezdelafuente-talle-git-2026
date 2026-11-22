@@ -10,13 +10,13 @@ Dominio: Minecraft
 
 Commit de solución POO-08: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/58861f5135afe589ed34f2985874d3ef0c0087ef
 
-Commit de solución POO-09: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/c5e3a8a8e7913d0cc4d34f8cceb228faa2205920
+Commit de solución POO-09 corregida: pendiente de commit local; no publicado.
 
 Commit anterior POO-06: https://github.com/SGDFM/sgomezdelafuente-talle-git-2026/commit/6e25498a38db875b3a97d32a17b47dc2e4885234
 
 ## Objetivo POO-09
 
-Publicar el contrato de la API con OpenAPI y Swagger UI, consumir con `WebClient` las APIs de dos compañeros y ejecutar un escenario cruzado. La jugada propia se guarda en H2 únicamente cuando Ruth (A2) y Matías (A3) aceptan sus respectivas reglas.
+Publicar el contrato de la API con OpenAPI y Swagger UI, consumir con `WebClient` las APIs de dos compañeros y ejecutar un escenario cruzado. En esta entrega Sebastián ocupa el rol A1 y guarda la jugada propia en H2 únicamente cuando Ruth (A2) y Matías (A3) aceptan sus respectivas reglas.
 
 ## Mapa del grupo
 
@@ -26,7 +26,7 @@ Publicar el contrato de la API con OpenAPI y Swagger UI, consumir con `WebClient
 | A2 | Ruth Santacruz | [ruthsantacruzuca](https://github.com/ruthsantacruzuca/rsantacruz-taller-git-2026) | Valida explosión y reacción en cadena. |
 | A3 | Matías Duarte | [Cemelele](https://github.com/Cemelele/mfdc-taller-git-2026) | Valida radio, víctimas y ciclo de vida del Creeper. |
 
-Al implementar esta entrega, los repositorios A2 y A3 todavía no exponían un documento OpenAPI. Por eso los adaptadores usan los contratos REST POO-08 visibles en sus códigos. Las rutas y URLs quedaron externalizadas para poder ajustarlas sin recompilar.
+Ruth ya publica POO-09 y OpenAPI en `main` (`fd6aebe`). Matías mantiene su avance POO-09 y OpenAPI en `feature/RESTClient` (`f3d717a`), todavía no fusionado a `main`; su endpoint de explosión consumido por A1 sí existe en `main`. Las rutas y URLs quedaron externalizadas para poder ajustarlas sin recompilar.
 
 ## OpenAPI y Swagger UI
 
@@ -104,7 +104,11 @@ Flujo aplicado:
 
 La transacción garantiza que un rechazo no inserta una jugada en la H2 de A1. No existe una transacción distribuida entre los tres procesos: si A2 modifica su propia base antes de que A3 rechace, A1 no puede deshacer ese efecto remoto.
 
-Los clientes y el orquestador registran en nivel `DEBUG` cada consulta, estado remoto, aceptación y persistencia, sin cambiar el nivel `INFO` del resto de la aplicación.
+Los clientes y el orquestador registran en nivel `DEBUG` cada consulta, estado remoto, aceptación y persistencia, sin cambiar el nivel `INFO` del resto de la aplicación. Cada cliente limita la conexión a 3 segundos y la espera de respuesta a 5 segundos.
+
+### Validación real en VM
+
+Se levantaron simultáneamente el commit publicado `fd6aebe` de Ruth en `8081`, el commit `e24255e` de Matías en `8082` y esta aplicación en `8080`, todos con H2 en memoria. El camino feliz respondió `201` y persistió una sola jugada en A1. Un Creeper inexistente de A2 y otro de A3 produjeron respuestas `422` que identificaron al compañero y no agregaron filas locales. Al detener A2, A1 respondió `502`, identificó a Ruth y mantuvo la única fila aceptada.
 
 ## Diagramas POO-09
 
@@ -257,7 +261,7 @@ JPA necesita un constructor sin argumentos. `Entidad`, `Mob` y `Zombie` lo expon
 | `DELETE` | `/minecraft/sgomezdelafuente/entidades/{id}` | Elimina la fila y responde `204`. |
 | `GET` | `/minecraft/sgomezdelafuente/entidades/ui` | Pide `describirUI()` mediante `UICapable`. |
 | `POST` | `/minecraft/sgomezdelafuente/simulaciones/explosion` | Ejecuta y persiste la simulación. |
-| `POST` | `/minecraft/sgomezdelafuente/escenarios/explosiones` | Consulta A2 y A3; persiste solamente si ambos aceptan. |
+| `POST` | `/minecraft/sgomezdelafuente/escenarios/explosiones` | A1 consulta A2 y A3; persiste solamente si ambos aceptan. |
 | `GET` | `/minecraft/sgomezdelafuente/escenarios/explosiones` | Lista las jugadas cruzadas aceptadas. |
 | `GET` | `/minecraft/sgomezdelafuente/comportamientos` | Conserva la demostración polimórfica de POO-06. |
 
@@ -371,6 +375,8 @@ Además del CRUD generado, el repositorio declara `findByVidaGreaterThanOrderByI
 ### Ocultamiento
 
 Los DTO de entrada crean objetos mediante constructores que solo asignan estado. `EntidadServiceImpl` rechaza una vida fuera del intervalo de 1 a 20, valores negativos, tipos no persistibles, cambios de subtipo y cualquier modificación de una entidad muerta. `JuegoServiceImpl` valida las reglas del juego y `ExplosionServiceImpl` coordina la simulación. Un POST ilegal responde `400` y no inserta una fila.
+
+La deserialización también rechaza propiedades desconocidas y números decimales en campos enteros. La carga se limita al máximo que permite calcular `cargaExplosion * 4` sin overflow, y la distancia usa aritmética `long` para soportar coordenadas extremas. Un PUT conserva la posición existente y una segunda detonación del mismo Creeper responde `409` sin alterar nuevamente las víctimas.
 
 ### PUT
 
@@ -529,4 +535,4 @@ classDiagram
 ./mvnw test
 ```
 
-Las 35 pruebas cubren el estado del dominio, las reglas de los servicios, `UICapable`, el CRUD persistido, el POST ilegal, la simulación, el estado posterior, OpenAPI, el escenario exitoso, los rechazos A2/A3, la indisponibilidad remota y la ausencia de persistencia ante errores.
+Las 52 pruebas cubren el estado del dominio, las reglas de los servicios, `UICapable`, el CRUD persistido, OpenAPI, integración y 15 casos adversariales específicos de Creeper: límites de vida, valores negativos, carga con overflow, decimales, propiedades desconocidas, campos omitidos, cambio de subtipo, posición en PUT, IDs inválidos, radio negativo, carga insuficiente, segunda detonación y coordenadas extremas.

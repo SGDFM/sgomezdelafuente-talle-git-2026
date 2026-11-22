@@ -1,12 +1,16 @@
 package py.edu.uc.lp3.integration;
 
+import io.netty.channel.ChannelOption;
+import java.time.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import reactor.core.publisher.Mono;
+import reactor.netty.http.client.HttpClient;
 import py.edu.uc.lp3.rest.dto.EscenarioExplosionRequest.MatiasRequest;
 import py.edu.uc.lp3.service.exception.CompaneroNoDisponibleException;
 import py.edu.uc.lp3.service.exception.RechazoCompaneroException;
@@ -24,7 +28,10 @@ public class WebClientMatiasExplosionClient implements MatiasExplosionClient {
 			WebClient.Builder builder,
 			@Value("${integracion.matias.base-url:http://localhost:8082}") String baseUrl,
 			@Value("${integracion.matias.explosion-path:/api/simulaciones/explosion}") String path) {
-		this.webClient = builder.baseUrl(baseUrl).build();
+		HttpClient httpClient = HttpClient.create()
+				.option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 3000)
+				.responseTimeout(Duration.ofSeconds(5));
+		this.webClient = builder.clientConnector(new ReactorClientHttpConnector(httpClient)).baseUrl(baseUrl).build();
 		this.path = path;
 	}
 
@@ -42,6 +49,10 @@ public class WebClientMatiasExplosionClient implements MatiasExplosionClient {
 							LOGGER.debug("Respuesta de {}: status={}, body={}", COMPANERO, status, body);
 							if (clientResponse.statusCode().is2xxSuccessful()) {
 								return Mono.just(body);
+							}
+							if (clientResponse.statusCode().is5xxServerError()) {
+								return Mono.error(new CompaneroNoDisponibleException(
+										COMPANERO, "estado remoto " + status + ": " + body));
 							}
 							return Mono.error(new RechazoCompaneroException(COMPANERO, status, body));
 						});

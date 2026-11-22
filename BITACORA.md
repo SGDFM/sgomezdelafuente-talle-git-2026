@@ -23,13 +23,17 @@
 - Corregir la separación de responsabilidades para que las entidades solo conserven estado y los servicios ejecuten todas las reglas.
 - Revisar la ortografía y la gramática de toda la documentación entregada.
 - Publicar todos los controladores mediante OpenAPI y Swagger UI.
-- Identificar a Ruth Santacruz como A2 y a Matías Duarte como A3 e inspeccionar sus contratos REST POO-08.
+- Aplicar roles relativos a esta entrega: Sebastián como A1, Ruth Santacruz como A2 y Matías Duarte como A3.
+- Revisar la entrega POO-09 publicada por Ruth y la rama `feature/RESTClient` de Matías.
 - Crear clientes `WebClient` con URLs configurables para consultar las explosiones de A2 y A3.
-- Orquestar un escenario que consulta primero A2, luego A3 y persiste en H2 solo cuando ambos aceptan.
+- Orquestar desde A1 un escenario que consulta primero A2, luego A3 y persiste en H2 solo cuando ambos aceptan.
 - Diferenciar un rechazo remoto (`422`) de un servicio no disponible (`502`) e identificar al compañero en la respuesta.
 - Registrar los pasos de integración con Log4j2 en nivel `DEBUG`.
 - Probar el camino feliz, un rechazo por compañero, la indisponibilidad y la ausencia de persistencia ante errores.
 - Crear una colección Insomnia y diagramas Mermaid para la integración POO-09.
+- Levantar A1, A2 y A3 simultáneamente en la VM y comprobar un camino feliz y un rechazo real por compañero.
+- Auditar entradas adversariales de Creeper y corregir overflow de carga, overflow de distancia, posición en PUT y coerción de JSON.
+- Ampliar la suite a 52 pruebas, con 15 casos adversariales específicos de Creeper.
 
 
 ## Validaciones realizadas

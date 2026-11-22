@@ -15,7 +15,7 @@ public class OpenApiConfig {
 		return new OpenAPI().info(new Info()
 				.title("Minecraft API - Sebastián Gómez de la Fuente")
 				.version("POO-09")
-				.description("CRUD H2, reglas de explosión y escenario cruzado con las APIs de Ruth y Matías.")
+				.description("A1: CRUD H2, reglas de explosión y escenario cruzado con Ruth (A2) y Matías (A3).")
 				.contact(new Contact().name("Sebastián Gómez de la Fuente").url("https://github.com/SGDFM"))
 				.license(new License().name("Apache License 2.0").url("https://www.apache.org/licenses/LICENSE-2.0")));
 	}

@@ -3,7 +3,7 @@ package py.edu.uc.lp3.rest.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
-@Schema(description = "Explosión coordinada que debe ser aceptada por Ruth y Matías")
+@Schema(description = "Explosión coordinada por A1 que debe ser aceptada por Ruth (A2) y Matías (A3)")
 public record EscenarioExplosionRequest(
 		@Schema(example = "Explosión coordinada en una mina") String descripcion,
 		RuthRequest ruth,

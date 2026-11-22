@@ -16,6 +16,8 @@ import py.edu.uc.lp3.service.exception.EstadoEntidadInvalidoException;
 @Transactional
 public class EntidadServiceImpl implements EntidadService {
 
+	private static final int CARGA_MAXIMA_SIN_OVERFLOW = Integer.MAX_VALUE / 4;
+
 	private final EntidadRepository repository;
 
 	public EntidadServiceImpl(EntidadRepository repository) {
@@ -60,8 +62,6 @@ public class EntidadServiceImpl implements EntidadService {
 		existente.setVida(reemplazo.getVida());
 		existente.setDanoBase(reemplazo.getDanoBase());
 		existente.setVelocidad(reemplazo.getVelocidad());
-		existente.setX(reemplazo.getX());
-		existente.setY(reemplazo.getY());
 		if (existente instanceof Jugador jugador && reemplazo instanceof Jugador jugadorNuevo) {
 			jugador.setArmadura(jugadorNuevo.getArmadura());
 		} else if (existente instanceof Creeper creeper && reemplazo instanceof Creeper creeperNuevo) {
@@ -92,8 +92,10 @@ public class EntidadServiceImpl implements EntidadService {
 		if (entidad instanceof Jugador jugador && jugador.getArmadura() < 0) {
 			throw new EstadoEntidadInvalidoException("La armadura no puede ser negativa");
 		}
-		if (entidad instanceof Creeper creeper && creeper.getCargaExplosion() < 0) {
-			throw new EstadoEntidadInvalidoException("La carga de explosión no puede ser negativa");
+		if (entidad instanceof Creeper creeper
+				&& (creeper.getCargaExplosion() < 0 || creeper.getCargaExplosion() > CARGA_MAXIMA_SIN_OVERFLOW)) {
+			throw new EstadoEntidadInvalidoException(
+					"La carga de explosión debe estar entre 0 y " + CARGA_MAXIMA_SIN_OVERFLOW);
 		}
 	}
 

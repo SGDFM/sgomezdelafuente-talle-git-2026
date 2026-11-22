@@ -43,6 +43,9 @@ public class ExplosionServiceImpl implements ExplosionService {
 	}
 
 	private <T extends Entidad> T buscarComo(Long id, Class<T> tipoEsperado) {
+		if (id == null || id <= 0) {
+			throw new EstadoEntidadInvalidoException("Los IDs de la simulación deben ser positivos");
+		}
 		Entidad entidad = repository.findById(id).orElseThrow(() -> new EntidadNoEncontradaException(id));
 		if (!tipoEsperado.isInstance(entidad)) {
 			throw new EstadoEntidadInvalidoException(

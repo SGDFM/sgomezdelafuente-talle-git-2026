@@ -18,6 +18,7 @@ public class JuegoServiceImpl implements JuegoService {
 
 	private static final int VIDA_MAXIMA_JUGADOR = 20;
 	private static final int CARGA_MINIMA_EXPLOSION = 3;
+	private static final int CARGA_MAXIMA_SIN_OVERFLOW = Integer.MAX_VALUE / 4;
 
 	@Override
 	public void validarEstado(Entidad entidad) {
@@ -91,9 +92,12 @@ public class JuegoServiceImpl implements JuegoService {
 
 	@Override
 	public void aumentarCarga(Creeper creeper, int cantidad) {
-		requerirEntidad(creeper);
+		validarEstado(creeper);
 		if (cantidad <= 0) {
 			throw new EstadoEntidadInvalidoException("La carga solo puede aumentar con valores positivos");
+		}
+		if ((long) creeper.getCargaExplosion() + cantidad > CARGA_MAXIMA_SIN_OVERFLOW) {
+			throw new EstadoEntidadInvalidoException("La carga de explosión supera el máximo seguro");
 		}
 		creeper.setCargaExplosion(creeper.getCargaExplosion() + cantidad);
 	}
@@ -108,6 +112,9 @@ public class JuegoServiceImpl implements JuegoService {
 			throw new ExplosionNoPermitidaException(
 					"El Creeper necesita una carga mínima de " + CARGA_MINIMA_EXPLOSION);
 		}
+		if (creeper.getCargaExplosion() > CARGA_MAXIMA_SIN_OVERFLOW) {
+			throw new EstadoEntidadInvalidoException("La carga de explosión supera el máximo seguro");
+		}
 		int danoExplosion = creeper.getCargaExplosion() * 4;
 		creeper.setVida(0);
 		creeper.setCargaExplosion(0);
@@ -121,7 +128,8 @@ public class JuegoServiceImpl implements JuegoService {
 		if (dano <= 0 || radio < 0) {
 			throw new EstadoEntidadInvalidoException("El daño debe ser positivo y el radio no puede ser negativo");
 		}
-		int distancia = Math.abs(objetivo.getX() - origen.getX()) + Math.abs(objetivo.getY() - origen.getY());
+		long distancia = Math.abs((long) objetivo.getX() - origen.getX())
+				+ Math.abs((long) objetivo.getY() - origen.getY());
 		if (!estaViva(objetivo) || distancia > radio) {
 			return false;
 		}

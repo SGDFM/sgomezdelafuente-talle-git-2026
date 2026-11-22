@@ -10,7 +10,7 @@
       "modified": 1795132800000,
       "created": 1795132800000,
       "name": "POO-09 Integracion Minecraft SGDFM",
-      "description": "OpenAPI y escenario coordinado con Ruth Santacruz (A2) y Matias Duarte (A3)",
+      "description": "A1 coordina un escenario con Ruth Santacruz (A2) y Matias Duarte (A3)",
       "scope": "collection",
       "_type": "workspace"
     },
@@ -64,7 +64,7 @@
       "created": 1795132800000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/escenarios/explosiones",
       "name": "02 - Escenario aceptado por A2 y A3",
-      "description": "Requiere IDs existentes y compatibles en las APIs de Ruth y Matias. Responde 201 y persiste localmente.",
+      "description": "A1 requiere IDs existentes en las APIs de Ruth y Matias. Responde 201 y persiste localmente.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -90,7 +90,7 @@
       "created": 1795132800000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/escenarios/explosiones",
       "name": "03 - Rechazo de A2 Ruth",
-      "description": "Usa un Creeper inexistente en A2. Debe responder 422, identificar a Ruth y no consultar A3.",
+      "description": "A2 rechaza un Creeper inexistente. A1 no consulta A3 ni persiste la jugada.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -116,7 +116,7 @@
       "created": 1795132800000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/escenarios/explosiones",
       "name": "04 - Rechazo de A3 Matias",
-      "description": "A2 debe aceptar primero y A3 rechaza el Creeper inexistente. La H2 local no debe registrar la jugada.",
+      "description": "A2 acepta primero y A3 rechaza el Creeper inexistente. A1 no registra la jugada en su H2.",
       "method": "POST",
       "body": {
         "mimeType": "application/json",
@@ -142,7 +142,7 @@
       "created": 1795132800000,
       "url": "{{ _.base_url }}/minecraft/sgomezdelafuente/escenarios/explosiones",
       "name": "05 - Listar escenarios persistidos",
-      "description": "Solo debe mostrar jugadas aceptadas por A2 y A3",
+      "description": "Solo debe mostrar jugadas aceptadas por A2 y A3 y persistidas por A1",
       "method": "GET",
       "body": {},
       "parameters": [],

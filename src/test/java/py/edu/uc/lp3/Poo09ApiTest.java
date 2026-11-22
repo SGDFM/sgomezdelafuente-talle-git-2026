@@ -64,8 +64,8 @@ class Poo09ApiTest {
 
 	@Test
 	void persisteSoloCuandoAmbosCompanerosAceptan() throws Exception {
-		when(ruthClient.validar(any(RuthRequest.class))).thenReturn("{\"resultado\":\"aceptado\"}");
 		when(matiasClient.validar(any(MatiasRequest.class))).thenReturn("{\"simulacionId\":7}");
+		when(ruthClient.validar(any(RuthRequest.class))).thenReturn("{\"resultado\":\"aceptado\"}");
 
 		mockMvc.perform(post(ESCENARIOS).contentType(MediaType.APPLICATION_JSON).content(PEDIDO))
 				.andExpect(status().isCreated())
@@ -117,6 +117,30 @@ class Poo09ApiTest {
 
 		assertEquals(0, repository.count());
 		verifyNoInteractions(matiasClient);
+	}
+
+	@Test
+	void servicioDeMatiasNoDisponibleResponde502() throws Exception {
+		when(ruthClient.validar(any(RuthRequest.class))).thenReturn("{\"resultado\":\"aceptado\"}");
+		when(matiasClient.validar(any(MatiasRequest.class)))
+				.thenThrow(new CompaneroNoDisponibleException("A3 - Matías Duarte", "Connection refused"));
+
+		mockMvc.perform(post(ESCENARIOS).contentType(MediaType.APPLICATION_JSON).content(PEDIDO))
+				.andExpect(status().isBadGateway())
+				.andExpect(jsonPath("$.companero").value("A3 - Matías Duarte"));
+
+		assertEquals(0, repository.count());
+	}
+
+	@Test
+	void pedidoLocalInvalidoNoConsultaCompaneros() throws Exception {
+		String invalido = PEDIDO.replace("\"creeperId\": 10", "\"creeperId\": 0");
+
+		mockMvc.perform(post(ESCENARIOS).contentType(MediaType.APPLICATION_JSON).content(invalido))
+				.andExpect(status().isBadRequest());
+
+		assertEquals(0, repository.count());
+		verifyNoInteractions(matiasClient, ruthClient);
 	}
 
 	@Test
